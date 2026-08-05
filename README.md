@@ -4,7 +4,7 @@
 
 CombatSense Edge 是一款面向 openvela 可穿戴平台的拳击训练辅助快应用。通过手表端 IMU 传感器（或 Demo 模拟数据）实时检测出拳动作（Jab / Cross / Hook / Other），在训练中提供实时计数、倒计时和置信度反馈，训练后给出动作统计、左右手差异、疲劳趋势和教练建议。
 
-当前状态：**应用骨架 + Demo 数据驱动**，已完成 aiot-toolkit RPK 打包验证，尚未完成 openvela 模拟器实际运行验证。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树，不改动任何生产仓库。
+当前状态：**应用骨架 + Demo 数据驱动**，已完成 aiot-toolkit RPK 打包验证；goldfish 模拟器全量构建已实际尝试，但在 openvela 系统链接阶段因既有 `vapp_main` 未定义而中止，尚未完成模拟器运行验证。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树，不改动任何生产仓库。
 
 ## 二、选题方向
 
@@ -65,9 +65,11 @@ npm run build
 
 此步骤已通过 aiot-toolkit 验证，可正常生成 RPK 文件。
 
-### 待验证：openvela 模拟器运行
+### 已尝试但受环境阻塞：openvela 模拟器运行
 
-以下步骤中，仅 Step 1 的 board config 目录、defconfig 内容（含 `CONFIG_QUICKAPP=y`）和 `cmake_out/vela_goldfish-arm64-v8a-ap/` 路径已在 VM 中确认存在；**完整编译、模拟器启动、RPK 安装和应用运行均未实际执行**，列为后续待完成项：
+已在 VM 实际执行 Step 1 的 goldfish 全量构建。构建进入 NuttX 链接阶段后因 `undefined reference to vapp_main` 失败；该符号由现有 goldfish 配置注册，但当前工作区未提供对应源码实现。此外，本地 `.repo/manifests/` 仍使用未包含 CombatSense linkfile 的初始清单，因此尚未建立 `packages/apps/contest2026_182_combat_sense` 软链。这两项均发生在 QuickApp 被编译或部署之前，尚不能据此判断 CombatSense 的模拟器兼容性。
+
+模拟器启动、RPK 安装和应用运行仍为后续待完成项：
 
 ```bash
 # 0. 拉取完整 openvela 工程（首次）
