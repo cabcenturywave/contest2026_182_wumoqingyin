@@ -107,6 +107,7 @@ repo sync -c -j8
 - **代码实现**：AI 参考 openvela 现有 wearable quickapp 示例（health-demo、settings、24count、fistPower）的目录结构、manifest 格式、组件模式和路由用法。
 - **数据建模**：AI 设计了 demo-data.js 中的完整训练数据结构和可回放事件序列。
 - **工程修正**：AI 发现并修正了 manifest.json 位置、缺少 package.json / config-watch.json 等构建兼容性问题。
+- **可复用 Skill**：`.claude/skills/combat-sense-quickapp/` 固化了 CombatSense QuickApp 的页面约定、Demo / IMU 数据边界、构建验证与安全检查，可用于后续功能迭代。
 - **日志归集**：AI 对话日志通过 OpenCode 导出，存放在 `logs/` 目录，格式遵循 `logs/README.md` 规范。
 - **敏感信息处理**：提交前对日志中的 API Key、Token 等敏感信息进行脱敏扫描，确保不含明文密钥。
 
