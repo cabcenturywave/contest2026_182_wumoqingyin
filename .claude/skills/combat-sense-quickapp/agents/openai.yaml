@@ -1,0 +1,4 @@
+interface:
+  display_name: "CombatSense QuickApp"
+  short_description: "Build and validate CombatSense QuickApp changes"
+  default_prompt: "Implement or validate a CombatSense Edge QuickApp task safely."
