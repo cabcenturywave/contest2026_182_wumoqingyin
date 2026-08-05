@@ -56,19 +56,18 @@ npm run build
 
 ### 模拟器运行
 
+已在 Ubuntu VM 的官方 VelaSim `vela-miwear-watch-5.0` 镜像中实际验证：首页 → 训练 → 实时计数 → 训练回顾均可正常运行。
+
 ```bash
-# 1. 拉取完整 openvela 工程
-cd ..
-repo sync -c -j8
+# 首次：下载官方模拟器资源并创建手表虚拟设备
+npm run simulator:init
+npm run simulator:create-vvd
 
-# 2. 编译 board config（快应用目标）
-./build.sh vendor/openvela/boards/vela/configs/quickapp/defconfig -j8
-
-# 3. 启动模拟器
-./emulator.sh
-
-# 4. 将 RPK 推送到模拟器，或在模拟器中找到 CombatSense Edge 应用启动
+# 无图形 Ubuntu VM：自动构建、安装和启动（首次提示时输入 y）
+npm run simulator:headless
 ```
+
+`simulator:headless` 使用 Xvfb，因此不需要配置桌面环境、VNC 或公网端口。`simulator:create-vvd` 是对 aiot-toolkit 2.0.5 中新设备名称校验问题的本地兼容封装，只调用已安装的官方 SDK，不包含密钥。
 
 ### Demo Data 说明
 

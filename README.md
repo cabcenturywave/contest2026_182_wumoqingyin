@@ -4,7 +4,7 @@
 
 CombatSense Edge 是一款面向 openvela 可穿戴平台的拳击训练辅助快应用。通过手表端 IMU 传感器（或 Demo 模拟数据）实时检测出拳动作（Jab / Cross / Hook / Other），在训练中提供实时计数、倒计时和置信度反馈，训练后给出动作统计、左右手差异、疲劳趋势和教练建议。
 
-当前状态：**应用骨架 + Demo 数据驱动**，已完成 aiot-toolkit RPK 打包验证；goldfish 模拟器全量构建已实际尝试，但在 openvela 系统链接阶段因既有 `vapp_main` 未定义而中止，尚未完成模拟器运行验证。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树，不改动任何生产仓库。
+当前状态：**应用骨架 + Demo 数据驱动**。已完成 RPK 打包，并在 aiot-toolkit 2.0.5 的官方 VelaSim 手表镜像中完成端到端验收：首页 → 训练 → Demo 动作实时计数 → 训练回顾均已实际运行。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树，不改动任何生产仓库。
 
 ## 二、选题方向
 
@@ -65,33 +65,31 @@ npm run build
 
 此步骤已通过 aiot-toolkit 验证，可正常生成 RPK 文件。
 
-### 已尝试但受环境阻塞：openvela 模拟器运行
+### 已验证：官方 VelaSim 模拟器运行
 
-已在 VM 实际执行 Step 1 的 goldfish 全量构建。构建进入 NuttX 链接阶段后因 `undefined reference to vapp_main` 失败；该符号由现有 goldfish 配置注册，但当前工作区未提供对应源码实现。此外，本地 `.repo/manifests/` 仍使用未包含 CombatSense linkfile 的初始清单，因此尚未建立 `packages/apps/contest2026_182_combat_sense` 软链。这两项均发生在 QuickApp 被编译或部署之前，尚不能据此判断 CombatSense 的模拟器兼容性。
-
-模拟器启动、RPK 安装和应用运行仍为后续待完成项：
+在 Ubuntu VM 上使用 aiot-toolkit 2.0.5 下载官方 `vela-miwear-watch-5.0` 镜像，创建 `Vela_CombatSense` 圆形手表虚拟设备，并由工具链完成 RPK 构建、安装和启动。无图形桌面的 VM 使用已有的 Xvfb 虚拟显示运行，不需要开放任何公网端口。
 
 ```bash
-# 0. 拉取完整 openvela 工程（首次）
-repo init -u https://github.com/open-vela/contest2026_182_wumoqingyin \
-  -b dev-ai-contest-2026 -m contest2026_182_wumoqingyin.xml
-repo sync -c -j8
-
-# 1. [待验证] 编译（goldfish 模拟器目标，已含 CONFIG_QUICKAPP=y）
-#    build.sh 接收 board config 目录，自行读取 defconfig
-./build.sh vendor/openvela/boards/vela/configs/goldfish-arm64-v8a-ap -j8
-
-# 2. [待验证] 启动模拟器（参数为 cmake_out 下的构建产物目录）
-./emulator.sh cmake_out/vela_goldfish-arm64-v8a-ap
-
-# 3. [待验证] 将 RPK 推送到模拟器
-#    需确认模拟器内的 adb 或 push 机制，以下为预期命令：
-# adb push quickapp/combat-sense/dist/com.openvela.combatsense.debug.1.0.0.rpk /data/
-
-# 4. [待验证] 在模拟器内启动 CombatSense Edge
+cd quickapp/combat-sense
+npm ci
+npm run simulator:init          # 首次下载官方模拟器资源
+npm run simulator:create-vvd    # 首次创建 Vela_CombatSense，重复执行安全
+npm run simulator:headless      # 无图形 Ubuntu VM 的实际启动命令
 ```
 
-> `vendor/openvela/boards/vela/configs/` 下无 `quickapp/` 目录，快应用能力通过 `goldfish-arm64-v8a-ap` defconfig 中的 `CONFIG_QUICKAPP=y` 启用。`cmake_out/vela_goldfish-arm64-v8a-ap/` 为既有构建产物目录，非本次实测生成。
+启动命令出现 `there is only one emulator, need to Run?` 时输入 `y`。工具链会自动构建、安装并启动 `com.openvela.combatsense`。
+
+实际验收结果：
+
+- 首页显示设备状态、上次训练摘要和“开始训练”；
+- 点击开始训练进入 Combat Session；Demo 动作事件驱动 Jab / Cross / Hook / Other 计数、计时和置信度实时更新；
+- 点击结束后进入 Review，显示动作统计、左右手差异、疲劳趋势与教练建议。
+
+> `aiot createVVD` 在本项目锁定的 2.0.5 版本中对“新设备名”存在校验缺陷，因此提供了等价的 `npm run simulator:create-vvd` 辅助脚本；它只调用已安装的官方模拟器 SDK，不访问网络、不包含任何密钥。
+
+### 已记录的系统构建限制
+
+另行尝试过完整 openvela Goldfish 系统构建：`./build.sh vendor/openvela/boards/vela/configs/goldfish-arm64-v8a-ap -j8`。该路径在既有系统链接阶段因 `vapp_main` 未定义中止，属于当前工作区 Goldfish 配置/系统源码问题；不影响以上已完成的 QuickApp VelaSim 兼容性验证。完整系统构建仍可在该系统问题修复后继续验证。
 
 ### Demo Data 与数据接口边界
 
