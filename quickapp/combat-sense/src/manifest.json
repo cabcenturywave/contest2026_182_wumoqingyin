@@ -1,0 +1,38 @@
+{
+  "package": "com.openvela.combatsense",
+  "name": "CombatSense Edge",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "minPlatformVersion": 1000,
+  "simulationVersion": "default",
+  "icon": "/common/logo.png",
+  "deviceTypeList": [
+    "watch"
+  ],
+  "features": [
+    {
+      "name": "system.router"
+    }
+  ],
+  "config": {
+    "logLevel": "log",
+    "designWidth": 480
+  },
+  "router": {
+    "entry": "pages/index",
+    "pages": {
+      "pages/index": {
+        "component": "index"
+      },
+      "pages/session": {
+        "component": "index"
+      },
+      "pages/review": {
+        "component": "index"
+      },
+      "pages/settings": {
+        "component": "index"
+      }
+    }
+  }
+}

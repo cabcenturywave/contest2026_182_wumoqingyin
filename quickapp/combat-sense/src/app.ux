@@ -1,0 +1,10 @@
+<script>
+export default {
+  onCreate() {
+    console.log('CombatSense Edge app created');
+  },
+  onDestroy() {
+    console.log('CombatSense Edge app destroyed');
+  }
+};
+</script>

@@ -1,0 +1,171 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <text class="title">设置</text>
+    </div>
+
+    <div class="list">
+      <div class="list-item" onclick="cycleHand">
+        <text class="item-label">佩戴手</text>
+        <text class="item-value">{{ handLabel }}</text>
+      </div>
+
+      <div class="list-item" onclick="cycleStance">
+        <text class="item-label">站姿</text>
+        <text class="item-value">{{ stanceLabel }}</text>
+      </div>
+
+      <div class="list-item" onclick="cycleTrainingType">
+        <text class="item-label">训练类型</text>
+        <text class="item-value">{{ trainingTypeLabel }}</text>
+      </div>
+
+      <div class="list-item" onclick="toggleDemo">
+        <text class="item-label">Demo 数据</text>
+        <text class="item-value {{ demoMode ? 'val-on' : 'val-off' }}">{{ demoMode ? '开启' : '关闭' }}</text>
+      </div>
+    </div>
+
+    <div class="footer">
+      <text class="footer-text">CombatSense Edge v1.0.0</text>
+      <text class="footer-sub">Demo Mode — 不接入真实传感器</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import dataInterface from '../../common/data-interface';
+
+var HAND_OPTIONS = [
+  { key: 'left', label: '左手' },
+  { key: 'right', label: '右手' }
+];
+var STANCE_OPTIONS = [
+  { key: 'orthodox', label: 'Orthodox（左前）' },
+  { key: 'southpaw', label: 'Southpaw（右前）' }
+];
+var TRAINING_OPTIONS = [
+  { key: 'heavy_bag', label: 'Heavy Bag' },
+  { key: 'speed_bag', label: 'Speed Bag' },
+  { key: 'shadowboxing', label: 'Shadowboxing' },
+  { key: 'mitt_work', label: 'Mitt Work' }
+];
+
+export default {
+  private: {
+    handLabel: '右手',
+    stanceLabel: 'Orthodox（左前）',
+    trainingTypeLabel: 'Heavy Bag',
+    demoMode: true,
+    _handIdx: 1,
+    _stanceIdx: 0,
+    _trainingIdx: 0
+  },
+  onInit() {
+    var s = dataInterface.getSettings();
+    for (var i = 0; i < HAND_OPTIONS.length; i++) {
+      if (HAND_OPTIONS[i].key === s.hand) { this._handIdx = i; break; }
+    }
+    for (var j = 0; j < STANCE_OPTIONS.length; j++) {
+      if (STANCE_OPTIONS[j].key === s.stance) { this._stanceIdx = j; break; }
+    }
+    for (var k = 0; k < TRAINING_OPTIONS.length; k++) {
+      if (TRAINING_OPTIONS[k].key === s.trainingType) { this._trainingIdx = k; break; }
+    }
+    this.demoMode = s.demoMode;
+    this.updateLabels();
+  },
+  updateLabels() {
+    this.handLabel = HAND_OPTIONS[this._handIdx].label;
+    this.stanceLabel = STANCE_OPTIONS[this._stanceIdx].label;
+    this.trainingTypeLabel = TRAINING_OPTIONS[this._trainingIdx].label;
+  },
+  saveCurrentSettings() {
+    dataInterface.saveSettings({
+      hand: HAND_OPTIONS[this._handIdx].key,
+      stance: STANCE_OPTIONS[this._stanceIdx].key,
+      trainingType: TRAINING_OPTIONS[this._trainingIdx].key,
+      demoMode: this.demoMode
+    });
+  },
+  cycleHand() {
+    this._handIdx = (this._handIdx + 1) % HAND_OPTIONS.length;
+    this.updateLabels();
+    this.saveCurrentSettings();
+  },
+  cycleStance() {
+    this._stanceIdx = (this._stanceIdx + 1) % STANCE_OPTIONS.length;
+    this.updateLabels();
+    this.saveCurrentSettings();
+  },
+  cycleTrainingType() {
+    this._trainingIdx = (this._trainingIdx + 1) % TRAINING_OPTIONS.length;
+    this.updateLabels();
+    this.saveCurrentSettings();
+  },
+  toggleDemo() {
+    this.demoMode = !this.demoMode;
+    this.saveCurrentSettings();
+  }
+};
+</script>
+
+<style>
+.page {
+  flex-direction: column;
+  align-items: center;
+  width: 480px;
+  height: 480px;
+  background-color: #0a0a0a;
+}
+.header {
+  margin-top: 30px;
+  margin-bottom: 16px;
+}
+.title {
+  font-size: 28px;
+  color: #ffffff;
+  font-weight: bold;
+}
+.list {
+  flex-direction: column;
+  width: 380px;
+}
+.list-item {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  padding: 0 16px;
+  border-bottom-width: 1px;
+  border-bottom-color: #222222;
+}
+.item-label {
+  font-size: 22px;
+  color: #cccccc;
+}
+.item-value {
+  font-size: 20px;
+  color: #ffffff;
+}
+.val-on {
+  color: #34d399;
+}
+.val-off {
+  color: #ff4444;
+}
+.footer {
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+}
+.footer-text {
+  font-size: 16px;
+  color: #555555;
+}
+.footer-sub {
+  font-size: 14px;
+  color: #444444;
+  margin-top: 4px;
+}
+</style>
