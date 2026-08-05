@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "team_id": "contest2026_182_wumoqingyin",
+  "github_login": "cabcenturywave",
+  "generator": "opencode-collector@1.3.0",
+  "updated_at": "2026-08-04T03:23:43.855Z",
+  "sessions": [
+    {
+      "session_id": "ses_0432227b4ffe6iXQuCP01YgK18",
+      "tool": "opencode",
+      "started_at": "2026-08-01T10:28:03.275Z",
+      "last_event_at": "2026-08-01T10:33:32.825Z",
+      "event_count": 8,
+      "raw_message_count": 6,
+      "file_path": "logs/cabcenturywave/2026-08-01/opencode__ses_0432227b4ffe6iXQuCP01YgK18.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Telegram · openvela contest",
+      "model": "opencode/big-pickle"
+    },
+    {
+      "session_id": "ses_03ac7666fffelZ0OEYGms1iQM3",
+      "tool": "opencode",
+      "started_at": "2026-08-03T01:24:08.720Z",
+      "last_event_at": "2026-08-03T12:48:22.019Z",
+      "event_count": 78,
+      "raw_message_count": 32,
+      "file_path": "logs/cabcenturywave/2026-08-03/opencode__ses_03ac7666fffelZ0OEYGms1iQM3.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Telegram · openvela contest",
+      "model": "opencode/big-pickle"
+    },
+    {
+      "session_id": "ses_03546178cffeP10DYf4CILg3k2",
+      "tool": "opencode",
+      "started_at": "2026-08-04T03:03:29.140Z",
+      "last_event_at": "2026-08-04T03:17:49.936Z",
+      "event_count": 54,
+      "raw_message_count": 20,
+      "file_path": "logs/cabcenturywave/2026-08-04/opencode__ses_03546178cffeP10DYf4CILg3k2.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Telegram · openvela contest",
+      "model": "xiaomi-token-plan/mimo-v2.5-pro"
+    },
+    {
+      "session_id": "ses_035a4e6d5ffexr7UJ44qJC7E3a",
+      "tool": "opencode",
+      "started_at": "2026-08-04T01:19:55.690Z",
+      "last_event_at": "2026-08-04T03:22:50.581Z",
+      "event_count": 129,
+      "raw_message_count": 19,
+      "file_path": "logs/cabcenturywave/2026-08-04/opencode__ses_035a4e6d5ffexr7UJ44qJC7E3a.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Explore quickapp build system (@explore subagent)",
+      "model": "xiaomi-token-plan/mimo-v2.5-pro"
+    },
+    {
+      "session_id": "ses_0384ad308ffejf9secojlcTnbk",
+      "tool": "opencode",
+      "started_at": "2026-08-03T12:59:27.351Z",
+      "last_event_at": "2026-08-04T03:23:43.309Z",
+      "event_count": 232,
+      "raw_message_count": 72,
+      "file_path": "logs/cabcenturywave/2026-08-04/opencode__ses_0384ad308ffejf9secojlcTnbk.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Telegram · openvela contest",
+      "model": "xiaomi-token-plan/mimo-v2.5-pro"
+    },
+    {
+      "session_id": "ses_03a054891ffeMuHk34lBRtV4Oq",
+      "tool": "opencode",
+      "started_at": "2026-08-03T04:56:10.350Z",
+      "last_event_at": "2026-08-04T03:23:43.775Z",
+      "event_count": 37,
+      "raw_message_count": 16,
+      "file_path": "logs/cabcenturywave/2026-08-04/opencode__ses_03a054891ffeMuHk34lBRtV4Oq.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Telegram · openvela contest",
+      "model": "opencode/big-pickle"
+    }
+  ]
+}

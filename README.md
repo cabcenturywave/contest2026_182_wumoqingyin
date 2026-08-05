@@ -1,148 +1,113 @@
-# contest2026_182_wumoqingyin
+# CombatSense Edge
 
-👋 欢迎参加 **2026 首届 openvela AI 硬件开发者大赛**！
+## 一、作品简介
 
-这是组委会为你的队伍创建的**专属参赛仓库**（本仓为样例/模板，队伍编号 `182`；你看到的将是你自己的 `contest2026_<编号>_<队伍名>`）。比赛期间，你的全部参赛代码、打包产物与 AI Coding 日志都提交到这里。
+CombatSense Edge 是一款面向 openvela 可穿戴平台的拳击训练辅助快应用。通过手表端 IMU 传感器（或 Demo 模拟数据）实时检测出拳动作（Jab / Cross / Hook / Other），在训练中提供实时计数、倒计时和置信度反馈，训练后给出动作统计、左右手差异、疲劳趋势和教练建议。
 
-> 本仓既是「代码仓」，又内置了一键拉取整套 openvela 工程的 `repo` 清单（manifest）。你只需跟它打交道，**自始至终只动一个文件夹**。
+当前状态：**应用骨架 + Demo 数据驱动**，已完成 aiot-toolkit RPK 打包验证，尚未完成 openvela 模拟器实际运行验证。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树，不改动任何生产仓库。
 
----
+## 二、选题方向
 
-## 一、先读这些官方文档
+**快应用 / 手表应用创新** — 利用 openvela 快应用框架（QuickApp）构建手表端 UI，复用 `system.router` 等系统能力，探索可穿戴设备在运动训练场景的应用。
 
-**通用（所有赛道必读）：**
+## 三、目录结构
 
-| 文档                                                                                                                                     | 用途                                           |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [《大赛总览》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/contest_overview.md)                        | 赛道、流程、评分、资源，建议先通读             |
-| [《参赛代码提交指南》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/code_submission_guide.md)           | 仓库获取、提交流程、时间与权限（**以此为准**） |
-| [《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md) | 如何导出 AI 对话日志并提交到 `logs/`           |
+```text
+contest2026_182_wumoqingyin/
+├── quickapp/combat-sense/         # 主作品：拳击训练快应用
+│   ├── package.json               # aiot-toolkit 构建脚本 + devDependencies
+│   ├── .gitignore                 # 忽略 node_modules/、build/、dist/
+│   ├── README.md                  # 作品详细说明
+│   └── src/
+│       ├── manifest.json          # 快应用入口配置（路由、设备类型、特性声明）
+│       ├── app.ux                 # 应用生命周期
+│       ├── config-watch.json      # 手表设备配置
+│       ├── common/
+│       │   ├── demo-data.js       # 完整 Demo Session JSON + 40 条可回放动作事件
+│       │   ├── data-interface.js  # 数据抽象层（Demo / 真实 IMU 切换接口）
+│       │   └── logo.png           # 应用图标（96x96 RGBA PNG）
+│       └── pages/
+│           ├── index/index.ux     # Today — 训练入口、设备状态、上次摘要
+│           ├── session/index.ux   # Combat Session — 计时/计数/置信度/暂停/结束
+│           ├── review/index.ux    # Review — 统计、左右手、疲劳趋势、教练建议
+│           └── settings/index.ux  # Settings — 佩戴手/站姿/训练类型/Demo 开关
+├── quickapp/hello_quickapp/       # 快应用示例骨架
+├── app/hello_app/                 # 应用示例骨架
+├── board/contest_board/           # 板级适配示例骨架
+├── logs/                          # AI Coding 日志（格式见 logs/README.md）
+├── contest2026_182_wumoqingyin.xml # repo manifest，含 linkfile 映射
+├── openvela.xml                   # openvela 基础工程 manifest
+├── .gitignore.example             # 编译产物忽略示例
+└── README.md                      # 本文件
+```
 
-**按你的赛道选读（三选一）：**
+### linkfile 映射（contest2026_182_wumoqingyin.xml）
 
-| 赛道                  | 教程导航                                                                                                                                                 |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 快应用 / 手表应用创新 | [快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)                         |
-| AI 硬件产品创新       | [AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)              |
-| 新硬件适配            | [新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md) |
+| 本仓路径 | 映射到 openvela 编译树 |
+| --- | --- |
+| `app/hello_app` | `packages/demos/contest2026_182_hello_app` |
+| `quickapp/hello_quickapp` | `packages/apps/contest2026_182_hello_quickapp` |
+| `quickapp/combat-sense` | `packages/apps/contest2026_182_combat_sense` |
+| `board/contest_board` | `vendor/openvela/boards/contest2026_182_board` |
 
----
+> 代码只存在于 contest 专属仓，构建时通过 linkfile 自动出现在 openvela 编译树对应位置，**生产仓库零改动**。
 
-## 二、第一步：拉取完整工程
+## 四、运行方式
 
-用组委会提供的命令一键拉取「openvela 全量源码 + 你的专属仓」：
+### 已验证：RPK 打包
 
 ```bash
+cd quickapp/combat-sense
+npm install
+npm run build
+# 输出: dist/com.openvela.combatsense.debug.1.0.0.rpk
+```
+
+此步骤已通过 aiot-toolkit 验证，可正常生成 RPK 文件。
+
+### 待验证：openvela 模拟器运行
+
+以下步骤中，仅 Step 1 的 board config 目录、defconfig 内容（含 `CONFIG_QUICKAPP=y`）和 `cmake_out/vela_goldfish-arm64-v8a-ap/` 路径已在 VM 中确认存在；**完整编译、模拟器启动、RPK 安装和应用运行均未实际执行**，列为后续待完成项：
+
+```bash
+# 0. 拉取完整 openvela 工程（首次）
 repo init -u https://github.com/open-vela/contest2026_182_wumoqingyin \
   -b dev-ai-contest-2026 -m contest2026_182_wumoqingyin.xml
 repo sync -c -j8
+
+# 1. [待验证] 编译（goldfish 模拟器目标，已含 CONFIG_QUICKAPP=y）
+#    build.sh 接收 board config 目录，自行读取 defconfig
+./build.sh vendor/openvela/boards/vela/configs/goldfish-arm64-v8a-ap -j8
+
+# 2. [待验证] 启动模拟器（参数为 cmake_out 下的构建产物目录）
+./emulator.sh cmake_out/vela_goldfish-arm64-v8a-ap
+
+# 3. [待验证] 将 RPK 推送到模拟器
+#    需确认模拟器内的 adb 或 push 机制，以下为预期命令：
+# adb push quickapp/combat-sense/dist/com.openvela.combatsense.debug.1.0.0.rpk /data/
+
+# 4. [待验证] 在模拟器内启动 CombatSense Edge
 ```
 
-同步后，你的整个仓库位于工作区的 `contest2026_182_wumoqingyin/`，openvela 全量源码在外层（`nuttx/`、`apps/`、`packages/`、`vendor/` 等）。
+> `vendor/openvela/boards/vela/configs/` 下无 `quickapp/` 目录，快应用能力通过 `goldfish-arm64-v8a-ap` defconfig 中的 `CONFIG_QUICKAPP=y` 启用。`cmake_out/vela_goldfish-arm64-v8a-ap/` 为既有构建产物目录，非本次实测生成。
 
----
+### Demo Data 与数据接口边界
 
-## 三、第二步：在哪里写代码
+- **Demo Session JSON**（`src/common/demo-data.js`）：包含一个完整的 3 回合 / 3 分钟拳击训练数据，117 次出拳、左右手分布、疲劳趋势曲线、4 条教练建议。
+- **可回放动作事件**：同一文件中的 `demoEvents` 数组包含 40 条带时间戳的模拟拳击事件（约 30 秒），由 `data-interface.js` 的 `subscribePunches()` 按时间回放。
+- **数据抽象层**（`src/common/data-interface.js`）：UI 层与传感器后端之间的接口层，提供 `subscribePunches` / `unsubscribePunches` / `getSessionSummary` / `getSettings` / `saveSettings` 等方法。**未来接入真实 IMU 时，只需替换 `subscribePunches` 内部实现，UI 层无需修改。**
 
-**只在自己的仓目录 `contest2026_182_wumoqingyin/` 里开发。** 不同作品形态放在对应子目录，manifest 会通过 `<linkfile>` 把它们**软链**到 openvela 编译树该在的位置——你不用手动 copy：
-
-| 作品形态 | 你的代码放这里             | 系统自动映射到                                 |
-| -------- | -------------------------- | ---------------------------------------------- |
-| 应用     | `app/hello_app/`           | `packages/demos/contest2026_182_hello_app`     |
-| 快应用   | `quickapp/hello_quickapp/` | `packages/apps/contest2026_182_hello_quickapp` |
-| 板级适配 | `board/contest_board/`     | `vendor/openvela/boards/contest2026_182_board` |
-
-> 用不到的形态目录可以删掉；新增作品时按同样规则加子目录，并在 `contest2026_182_wumoqingyin.xml` 里补一条 `<linkfile>` 映射即可。**生产仓库（packages/nuttx/vendor 等）零改动。**
-
-建议仓库目录约定（便于评委定位）：
-
-```text
-app/ | quickapp/ | board/   # 你的作品代码
-logs/                       # AI Coding 日志（主动导出后提交，格式见 logs/README.md）
-README.md                   # 作品说明（提交前请改成你自己的，见第六节）
-```
-
-> 仓内附带了一个 `.gitignore.example`，给出了**编译产物**等不需要进仓的文件示例。如需启用，`cp .gitignore.example .gitignore` 后按需增删即可。**注意 `logs/` 下最终导出的 AI Coding 日志必须提交，不要忽略。**
->
-> `logs/` 的目录结构与提交格式见 [logs/README.md](logs/README.md)。
-
----
-
-## 四、第三步：编译与运行
-
-编译/运行步骤随作品形态不同而不同，请参考你所在赛道的教程导航：
-
-- 快应用 / 手表应用：[快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)（含模拟器与开发板部署）。
-- AI 硬件产品创新：[AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)（环境搭建、编译烧录、Skill 开发）。
-- 新硬件适配：[新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md)（BSP 移植、最小 NSH 基线）。
-
-子目录已通过 manifest 中的 `<linkfile>` 软链进 openvela 编译树，因此构建在 openvela 工作区**根目录**（即你这个仓的上一级）进行。openvela 使用 `build.sh` 作为统一入口，接收一个 **board config 路径**作为参数：
-
-```bash
-# 进入 openvela 工作区根目录（你的仓的上一级）
-cd ..
-
-# 通用语法：第一个参数是 board config 路径，第二个参数可以是 menuconfig / distclean 等
-./build.sh <board-config-path> [menuconfig|distclean] [-j8]
-```
-
-> 具体的 board config 路径、目标产物、模拟器/真机部署方式请以你所在赛道的教程导航为准。本仓 `app/` `quickapp/` `board/` 三个示例骨架对应的 Kconfig 选项可通过 `menuconfig` 启用。
-
----
-
-## 五、第四步：提交作品
-
-1. **fork** 你的专属仓 → 开发 → `git commit` 并推送 → 向专属仓发起 **Pull Request**，可**自行 review 并合入**（无需等组委会）。
-2. **AI Coding 日志**：与 AI 工具的对话会自动记录到本机 staging（不会自动上传），需你**主动导出/打包**选定会话到仓内 `logs/` 目录后一并提交。详见[《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md)。
-3. 若需改动 **nuttx 等公共仓库**，不在本仓改，而是 fork 对应公共仓、以 PR 提交到 `dev-ai-contest-2026` 分支，由组委会 review 后合入。
-
-> ⏰ **提交作品截止：9 月 20 日**。截止后统一收回 push 权限，仍可查看 / clone。
->
-> 获奖后再按要求将作品 PR 至 openvela 上游对应仓库（走标准 PR + CI 流程）。
-
-### 关于 PR 与 CLA
-
-- 本仓所有改动通过 **Pull Request** 合入（分支保护强制，可自行合入自己的 PR）。
-- 首次贡献需在[**官网签署 CLA**](https://openvela.com/#/community/cla)；PR 上会自动跑 `cla/signature` 检查，在官网签署成功后，在 PR 评论 `/check-cla` 复检即可通过。
-
----
-
-## 六、提交前：把本 README 改成你的作品说明
-
-本文件目前是组委会给的**使用说明书**。**作品提交前，请把它替换成你自己作品的说明**，方便评委快速了解你做了什么、怎么跑起来。建议至少包含以下内容：
-
-```markdown
-# <你的作品名>
-
-## 一、作品简介
-<一句话/一段话说明这个作品是什么、解决什么问题、亮点在哪>
-
-## 二、选题方向
-<快应用 / 手表应用创新 ｜ AI 硬件产品创新 ｜ 新硬件适配 ｜ 自定方向，并简述理由>
-
-## 三、目录结构
-<列出你这个仓里各目录/文件的作用，例如：>
-- `app/xxx/`        — <说明>
-- `board/xxx/`      — <说明>
-- `quickapp/xxx/`   — <说明>
-- `logs/`           — AI Coding 日志
-- `docs/` 或其他    — <说明>
-
-## 四、运行方式
-<拉取工程后，如何编译、烧录/部署、运行的完整步骤；最好能让评委照着一步步复现>
+当前所有数据均为 Demo 模拟数据，不依赖真实硬件或 IMU 传感器。
 
 ## 五、AI Coding 使用说明
-<说明本作品如何借助 AI 辅助开发：
-- 在需求拆解 / 方案设计 / 编码 / 调试 / 文档等环节如何与 AI 协作；
-- AI 对开发效率或质量带来的实际帮助。
-完整对话日志见 logs/ 目录>
-```
 
-> 提示：将会根据「作品本身 + 你的 README 说明 + `logs/` 里的 AI Coding 日志」来理解和评估你的作品，README 写清楚很重要。
+本项目完全借助 AI 辅助开发，使用 **OpenCode** 作为主要 AI 编程工具：
 
----
+- **需求分析与页面拆解**：由 AI 根据比赛要求制定任务计划，拆解为 Today / Combat Session / Review / Settings 四个页面。
+- **代码实现**：AI 参考 openvela 现有 wearable quickapp 示例（health-demo、settings、24count、fistPower）的目录结构、manifest 格式、组件模式和路由用法。
+- **数据建模**：AI 设计了 demo-data.js 中的完整训练数据结构和可回放事件序列。
+- **工程修正**：AI 发现并修正了 manifest.json 位置、缺少 package.json / config-watch.json 等构建兼容性问题。
+- **日志归集**：AI 对话日志通过 OpenCode 导出，存放在 `logs/` 目录，格式遵循 `logs/README.md` 规范。
+- **敏感信息处理**：提交前对日志中的 API Key、Token 等敏感信息进行脱敏扫描，确保不含明文密钥。
 
-## 附：仓库命名规范
-
-`contest2026_<编号>_<队伍名>` — 编号三位零填充；队名 slug（全小写、英文/拼音、连字符）。例：`contest2026_182_wumoqingyin`。
-（仓库由组委会统一创建，**每队仅一个仓**，无需自行命名。）
+完整对话日志见 `logs/` 目录。

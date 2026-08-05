@@ -1,0 +1,309 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <text class="title">训练回顾</text>
+    </div>
+
+    <div class="duration-section">
+      <text class="duration-value">{{ durationDisplay }}</text>
+      <text class="duration-label">训练时长</text>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-item">
+        <text class="stat-value stat-jab">{{ jab }}</text>
+        <text class="stat-label">Jab</text>
+      </div>
+      <div class="stat-item">
+        <text class="stat-value stat-cross">{{ cross }}</text>
+        <text class="stat-label">Cross</text>
+      </div>
+      <div class="stat-item">
+        <text class="stat-value stat-hook">{{ hook }}</text>
+        <text class="stat-label">Hook</text>
+      </div>
+      <div class="stat-item">
+        <text class="stat-value stat-other">{{ other }}</text>
+        <text class="stat-label">Other</text>
+      </div>
+    </div>
+
+    <div class="total-line">
+      <text class="total-label">总出拳</text>
+      <text class="total-value">{{ total }}</text>
+      <text class="total-conf">置信度 {{ confidence }}%</text>
+    </div>
+
+    <div class="hand-section">
+      <text class="section-title">左右手差异</text>
+      <div class="hand-bar-container">
+        <div class="hand-bar-left" style="width: {{ leftBarWidth }}px;"></div>
+        <div class="hand-bar-right" style="width: {{ rightBarWidth }}px;"></div>
+      </div>
+      <div class="hand-labels">
+        <text class="hand-label-left">左手 {{ leftPct }}%</text>
+        <text class="hand-label-right">右手 {{ rightPct }}%</text>
+      </div>
+    </div>
+
+    <div class="fatigue-section">
+      <text class="section-title">疲劳趋势</text>
+      <div class="fatigue-bars">
+        <div class="fatigue-bar" for="{{ fatigueData }}" style="height: {{ $item.height }}px; background-color: {{ $item.color }};"></div>
+      </div>
+      <div class="fatigue-labels">
+        <text class="fl">R1</text>
+        <text class="fl">R2</text>
+        <text class="fl">R3</text>
+      </div>
+    </div>
+
+    <div class="coach-section">
+      <text class="section-title">教练建议</text>
+      <text class="coach-text" for="{{ coachTips }}">{{ $item }}</text>
+    </div>
+
+    <div class="back-btn" onclick="goBack">
+      <text class="back-text">返回首页</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router';
+import dataInterface from '../../common/data-interface';
+
+export default {
+  private: {
+    duration: 0,
+    jab: 0,
+    cross: 0,
+    hook: 0,
+    other: 0,
+    total: 0,
+    confidence: 0,
+    round: 1,
+    durationDisplay: '00:00',
+    leftPct: 45,
+    rightPct: 55,
+    leftBarWidth: 135,
+    rightBarWidth: 165,
+    fatigueData: [],
+    coachTips: []
+  },
+  onInit() {
+    this.initFromDemo();
+  },
+  initFromDemo() {
+    var s = dataInterface.getSessionSummary();
+    this.duration = s.durationSec;
+    this.jab = s.punchCounts.jab;
+    this.cross = s.punchCounts.cross;
+    this.hook = s.punchCounts.hook;
+    this.other = s.punchCounts.other;
+    this.total = s.totalPunches;
+
+    var m = Math.floor(s.durationSec / 60);
+    var sec = s.durationSec % 60;
+    this.durationDisplay = (m < 10 ? '0' + m : '' + m) + ':' + (sec < 10 ? '0' + sec : '' + sec);
+
+    var l = s.handDistribution.left;
+    var r = s.handDistribution.right;
+    var hTotal = l + r;
+    if (hTotal > 0) {
+      this.leftPct = Math.round(l / hTotal * 100);
+      this.rightPct = 100 - this.leftPct;
+      this.leftBarWidth = Math.round(l / hTotal * 300);
+      this.rightBarWidth = 300 - this.leftBarWidth;
+    }
+
+    var rounds = s.roundBreakdown;
+    var sumConf = 0;
+    var fatigue = [];
+    for (var i = 0; i < rounds.length; i++) {
+      sumConf += rounds[i].avgConfidence;
+      var rate = rounds[i].peakPunchesPerMin;
+      var h = Math.max(10, Math.round(rate / 55 * 40));
+      var c = rate > 45 ? '#4fc3f7' : rate > 35 ? '#ff9800' : '#ff4444';
+      fatigue.push({ height: h, color: c });
+    }
+    this.confidence = Math.round(sumConf / rounds.length * 100);
+    this.fatigueData = fatigue;
+    this.coachTips = s.coachSuggestions;
+  },
+  goBack() {
+    router.replace({ uri: '/pages/index' });
+  }
+};
+</script>
+
+<style>
+.page {
+  flex-direction: column;
+  align-items: center;
+  width: 480px;
+  height: 480px;
+  background-color: #0a0a0a;
+}
+.header {
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+.title {
+  font-size: 28px;
+  color: #ffffff;
+  font-weight: bold;
+}
+.duration-section {
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.duration-value {
+  font-size: 48px;
+  color: #ffffff;
+  font-weight: bold;
+  font-family: monospace;
+}
+.duration-label {
+  font-size: 16px;
+  color: #888888;
+  margin-top: 2px;
+}
+.stats-grid {
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.stat-item {
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  margin: 0 10px;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+}
+.stat-jab { color: #4fc3f7; }
+.stat-cross { color: #ff7043; }
+.stat-hook { color: #ab47bc; }
+.stat-other { color: #78909c; }
+.stat-label {
+  font-size: 14px;
+  color: #888888;
+}
+.total-line {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.total-label {
+  font-size: 18px;
+  color: #888888;
+  margin-right: 8px;
+}
+.total-value {
+  font-size: 24px;
+  color: #ffffff;
+  font-weight: bold;
+  margin-right: 16px;
+}
+.total-conf {
+  font-size: 16px;
+  color: #34d399;
+}
+.section-title {
+  font-size: 18px;
+  color: #ff4444;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+.hand-section {
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.hand-bar-container {
+  flex-direction: row;
+  width: 300px;
+  height: 10px;
+}
+.hand-bar-left {
+  height: 10px;
+  background-color: #4fc3f7;
+  border-radius: 5px 0 0 5px;
+}
+.hand-bar-right {
+  height: 10px;
+  background-color: #ff7043;
+  border-radius: 0 5px 5px 0;
+}
+.hand-labels {
+  flex-direction: row;
+  justify-content: space-between;
+  width: 300px;
+  margin-top: 4px;
+}
+.hand-label-left {
+  font-size: 14px;
+  color: #4fc3f7;
+}
+.hand-label-right {
+  font-size: 14px;
+  color: #ff7043;
+}
+.fatigue-section {
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.fatigue-bars {
+  flex-direction: row;
+  align-items: flex-end;
+  height: 48px;
+  justify-content: center;
+}
+.fatigue-bar {
+  width: 24px;
+  margin: 0 6px;
+  border-radius: 4px 4px 0 0;
+}
+.fatigue-labels {
+  flex-direction: row;
+  justify-content: center;
+  width: 120px;
+}
+.fl {
+  font-size: 12px;
+  color: #888888;
+  width: 36px;
+  text-align: center;
+}
+.coach-section {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 40px;
+  margin-bottom: 8px;
+}
+.coach-text {
+  font-size: 14px;
+  color: #cccccc;
+  margin-top: 3px;
+  lines: 2;
+  width: 400px;
+}
+.back-btn {
+  width: 160px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #333333;
+  justify-content: center;
+  align-items: center;
+  margin-top: 4px;
+}
+.back-text {
+  font-size: 18px;
+  color: #ffffff;
+}
+</style>

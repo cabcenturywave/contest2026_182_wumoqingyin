@@ -1,0 +1,187 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <text class="title">CombatSense</text>
+      <text class="subtitle">Edge</text>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-dot {{ deviceConnected ? 'dot-on' : 'dot-off' }}"></div>
+      <text class="status-text">{{ deviceStatus }}</text>
+    </div>
+
+    <div class="summary-card" if="{{ hasLastSession }}">
+      <text class="card-label">上次训练</text>
+      <div class="summary-row">
+        <div class="summary-item">
+          <text class="summary-value">{{ lastDuration }}</text>
+          <text class="summary-unit">分钟</text>
+        </div>
+        <div class="summary-item">
+          <text class="summary-value">{{ lastPunches }}</text>
+          <text class="summary-unit">出拳</text>
+        </div>
+        <div class="summary-item">
+          <text class="summary-value">{{ lastConfidence }}%</text>
+          <text class="summary-unit">置信度</text>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card" if="{{ !hasLastSession }}">
+      <text class="card-label">尚无训练记录</text>
+      <text class="card-hint">开始你的第一次训练吧</text>
+    </div>
+
+    <div class="start-btn" onclick="goSession">
+      <text class="start-text">开始训练</text>
+    </div>
+
+    <div class="nav-hint">
+      <text class="hint-text">上滑查看更多</text>
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router';
+import dataInterface from '../../common/data-interface';
+
+export default {
+  private: {
+    deviceConnected: true,
+    deviceStatus: '传感器就绪',
+    hasLastSession: true,
+    lastDuration: '3.0',
+    lastPunches: '117',
+    lastConfidence: '84'
+  },
+  onReady() {
+    var session = dataInterface.getSessionSummary();
+    if (session) {
+      this.hasLastSession = true;
+      this.lastDuration = (session.durationSec / 60).toFixed(1);
+      this.lastPunches = String(session.totalPunches);
+      var avg = 0;
+      if (session.roundBreakdown && session.roundBreakdown.length > 0) {
+        var sum = 0;
+        for (var i = 0; i < session.roundBreakdown.length; i++) {
+          sum += session.roundBreakdown[i].avgConfidence;
+        }
+        avg = Math.round((sum / session.roundBreakdown.length) * 100);
+      }
+      this.lastConfidence = String(avg);
+    }
+  },
+  goSession() {
+    router.push({ uri: '/pages/session' });
+  }
+};
+</script>
+
+<style>
+.page {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 480px;
+  height: 480px;
+  background-color: #0a0a0a;
+}
+.header {
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.title {
+  font-size: 40px;
+  color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+.subtitle {
+  font-size: 22px;
+  color: #ff4444;
+  font-weight: bold;
+  margin-top: 2px;
+}
+.status-bar {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  margin-right: 8px;
+}
+.dot-on {
+  background-color: #34d399;
+}
+.dot-off {
+  background-color: #ff4444;
+}
+.status-text {
+  font-size: 20px;
+  color: #999999;
+}
+.summary-card {
+  flex-direction: column;
+  align-items: center;
+  background-color: #1a1a1a;
+  border-radius: 16px;
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  width: 360px;
+}
+.card-label {
+  font-size: 20px;
+  color: #888888;
+  margin-bottom: 12px;
+}
+.card-hint {
+  font-size: 22px;
+  color: #666666;
+}
+.summary-row {
+  flex-direction: row;
+  justify-content: space-around;
+  width: 100%;
+}
+.summary-item {
+  flex-direction: column;
+  align-items: center;
+}
+.summary-value {
+  font-size: 36px;
+  color: #ffffff;
+  font-weight: bold;
+}
+.summary-unit {
+  font-size: 18px;
+  color: #888888;
+  margin-top: 2px;
+}
+.start-btn {
+  width: 240px;
+  height: 64px;
+  border-radius: 32px;
+  background-color: #ff4444;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
+}
+.start-text {
+  font-size: 28px;
+  color: #ffffff;
+  font-weight: bold;
+}
+.nav-hint {
+  margin-top: 20px;
+}
+.hint-text {
+  font-size: 18px;
+  color: #555555;
+}
+</style>

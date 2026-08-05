@@ -1,0 +1,314 @@
+<template>
+  <div class="page">
+    <div class="timer-section">
+      <text class="timer-label">{{ timerLabel }}</text>
+      <text class="timer-value">{{ displayTime }}</text>
+    </div>
+
+    <div class="round-info">
+      <text class="round-text">第 {{ currentRound }} 回合</text>
+    </div>
+
+    <div class="counters">
+      <div class="counter-row">
+        <div class="counter-item">
+          <text class="counter-value counter-jab">{{ counts.jab }}</text>
+          <text class="counter-label">Jab</text>
+        </div>
+        <div class="counter-item">
+          <text class="counter-value counter-cross">{{ counts.cross }}</text>
+          <text class="counter-label">Cross</text>
+        </div>
+      </div>
+      <div class="counter-row">
+        <div class="counter-item">
+          <text class="counter-value counter-hook">{{ counts.hook }}</text>
+          <text class="counter-label">Hook</text>
+        </div>
+        <div class="counter-item">
+          <text class="counter-value counter-other">{{ counts.other }}</text>
+          <text class="counter-label">Other</text>
+        </div>
+      </div>
+    </div>
+
+    <div class="confidence-bar">
+      <text class="conf-label">置信度</text>
+      <div class="conf-track">
+        <div class="conf-fill" style="width: {{ confBarWidth }}px;"></div>
+      </div>
+      <text class="conf-value">{{ confidenceText }}%</text>
+    </div>
+
+    <div class="total-row">
+      <text class="total-label">总出拳</text>
+      <text class="total-value">{{ totalPunches }}</text>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-btn" if="{{ state === 'idle' }}" onclick="startSession">
+        <text class="ctrl-text ctrl-start">开始</text>
+      </div>
+      <div class="ctrl-btn" if="{{ state === 'running' }}" onclick="pauseSession">
+        <text class="ctrl-text ctrl-pause">暂停</text>
+      </div>
+      <div class="ctrl-btn" if="{{ state === 'paused' }}" onclick="resumeSession">
+        <text class="ctrl-text ctrl-start">继续</text>
+      </div>
+      <div class="ctrl-btn ctrl-stop" if="{{ state !== 'idle' }}" onclick="endSession">
+        <text class="ctrl-text ctrl-stop-text">结束</text>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import dataInterface from '../../common/data-interface';
+import router from '@system.router';
+
+var TIMER_INTERVAL = 1000;
+var MAX_CONF_BAR = 200;
+
+export default {
+  private: {
+    state: 'idle',
+    timerLabel: '计时',
+    elapsedSec: 0,
+    displayTime: '00:00',
+    currentRound: 1,
+    roundDuration: 60,
+    counts: { jab: 0, cross: 0, hook: 0, other: 0 },
+    totalPunches: 0,
+    avgConfidence: 0,
+    confidenceSum: 0,
+    confidenceCount: 0,
+    confidenceText: '0',
+    confBarWidth: 0,
+    _timerHandle: null,
+    _startTime: 0,
+    _pausedElapsed: 0
+  },
+  onDestroy() {
+    this.stopTimer();
+    dataInterface.unsubscribePunches();
+  },
+  formatTime(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return (m < 10 ? '0' + m : '' + m) + ':' + (s < 10 ? '0' + s : '' + s);
+  },
+  startTimer() {
+    var self = this;
+    self._timerHandle = setInterval(function () {
+      var now = Date.now();
+      var elapsed = self._pausedElapsed + Math.floor((now - self._startTime) / 1000);
+      self.elapsedSec = elapsed;
+      self.displayTime = self.formatTime(elapsed);
+      self.currentRound = Math.floor(elapsed / self.roundDuration) + 1;
+      if (self.currentRound > 3) {
+        self.currentRound = 3;
+      }
+    }, TIMER_INTERVAL);
+  },
+  stopTimer() {
+    if (this._timerHandle) {
+      clearInterval(this._timerHandle);
+      this._timerHandle = null;
+    }
+  },
+  startSession() {
+    this.state = 'running';
+    this.timerLabel = '训练中';
+    this._startTime = Date.now();
+    this._pausedElapsed = 0;
+    this.counts = { jab: 0, cross: 0, hook: 0, other: 0 };
+    this.totalPunches = 0;
+    this.confidenceSum = 0;
+    this.confidenceCount = 0;
+    this.elapsedSec = 0;
+    this.displayTime = '00:00';
+    this.currentRound = 1;
+    this.startTimer();
+    var self = this;
+    dataInterface.subscribePunches(function (evt) {
+      self.onPunch(evt);
+    }, null, 8);
+  },
+  pauseSession() {
+    this.state = 'paused';
+    this.timerLabel = '已暂停';
+    this.stopTimer();
+    this._pausedElapsed = this.elapsedSec;
+    dataInterface.unsubscribePunches();
+  },
+  resumeSession() {
+    this.state = 'running';
+    this.timerLabel = '训练中';
+    this._startTime = Date.now();
+    this.startTimer();
+    var self = this;
+    dataInterface.subscribePunches(function (evt) {
+      self.onPunch(evt);
+    }, null, 8);
+  },
+  endSession() {
+    this.state = 'idle';
+    this.timerLabel = '计时';
+    this.stopTimer();
+    dataInterface.unsubscribePunches();
+    router.replace({
+      uri: '/pages/review',
+      params: {
+        duration: this.elapsedSec,
+        jab: this.counts.jab,
+        cross: this.counts.cross,
+        hook: this.counts.hook,
+        other: this.counts.other,
+        total: this.totalPunches,
+        confidence: this.confidenceCount > 0 ? Math.round(this.confidenceSum / this.confidenceCount * 100) : 0,
+        round: this.currentRound
+      }
+    });
+  },
+  onPunch(evt) {
+    if (this.state !== 'running') return;
+    var type = evt.type;
+    if (this.counts.hasOwnProperty(type)) {
+      this.counts[type]++;
+    }
+    this.totalPunches++;
+    this.confidenceSum += evt.confidence;
+    this.confidenceCount++;
+    var avg = this.confidenceSum / this.confidenceCount;
+    this.confidenceText = String(Math.round(avg * 100));
+    this.confBarWidth = Math.round(avg * MAX_CONF_BAR);
+  }
+};
+</script>
+
+<style>
+.page {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 480px;
+  height: 480px;
+  background-color: #0a0a0a;
+}
+.timer-section {
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.timer-label {
+  font-size: 20px;
+  color: #ff4444;
+  font-weight: bold;
+}
+.timer-value {
+  font-size: 64px;
+  color: #ffffff;
+  font-weight: bold;
+  font-family: monospace;
+}
+.round-info {
+  margin-bottom: 12px;
+}
+.round-text {
+  font-size: 22px;
+  color: #aaaaaa;
+}
+.counters {
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.counter-row {
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.counter-item {
+  flex-direction: column;
+  align-items: center;
+  width: 100px;
+  margin: 0 12px;
+}
+.counter-value {
+  font-size: 36px;
+  font-weight: bold;
+}
+.counter-jab { color: #4fc3f7; }
+.counter-cross { color: #ff7043; }
+.counter-hook { color: #ab47bc; }
+.counter-other { color: #78909c; }
+.counter-label {
+  font-size: 16px;
+  color: #888888;
+  margin-top: 2px;
+}
+.confidence-bar {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.conf-label {
+  font-size: 18px;
+  color: #888888;
+  margin-right: 8px;
+}
+.conf-track {
+  width: 200px;
+  height: 8px;
+  background-color: #333333;
+  border-radius: 4px;
+}
+.conf-fill {
+  height: 8px;
+  background-color: #34d399;
+  border-radius: 4px;
+}
+.conf-value {
+  font-size: 18px;
+  color: #34d399;
+  margin-left: 8px;
+}
+.total-row {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.total-label {
+  font-size: 20px;
+  color: #888888;
+  margin-right: 12px;
+}
+.total-value {
+  font-size: 32px;
+  color: #ffffff;
+  font-weight: bold;
+}
+.controls {
+  flex-direction: row;
+  justify-content: center;
+}
+.ctrl-btn {
+  width: 100px;
+  height: 48px;
+  border-radius: 24px;
+  background-color: #ff4444;
+  justify-content: center;
+  align-items: center;
+  margin: 0 8px;
+}
+.ctrl-stop {
+  background-color: #333333;
+}
+.ctrl-text {
+  font-size: 22px;
+  font-weight: bold;
+}
+.ctrl-start { color: #ffffff; }
+.ctrl-pause { color: #ffffff; }
+.ctrl-stop-text { color: #ff4444; }
+</style>
