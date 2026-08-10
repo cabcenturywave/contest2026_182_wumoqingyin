@@ -127,11 +127,34 @@ npm run simulator:headless
 ### 数据接口说明
 
 `data-interface.js` 是 UI 层与传感器后端之间的抽象层：
-- `subscribePunches(callback, errorCallback, speed)` — 订阅出拳事件（Demo 模式下回放 `demoEvents`）
+- `probeSensor(successCb, failCb)` — 探测加速度计是否可用（500ms 超时）
+- `setMode(mode)` / `getMode()` — 切换 `'demo'` / `'hardware'` 模式
+- `subscribePunches(callback, errorCallback, speed)` — 订阅出拳事件
 - `unsubscribePunches()` — 停止订阅
 - `getSessionSummary()` — 获取上一次训练总结
 - `getSettings()` / `saveSettings(obj)` — 读写持久化设置
-- 未来接入真实 IMU 时，只需替换 `subscribePunches` 内部实现，UI 层无需修改
+
+### 硬件模式说明
+
+硬件模式通过 `@system.sensor` 订阅加速度计（`interval: 'game'`），采用以下检测流水线：
+1. **去重力**：指数移动平均（EMA）估计重力分量，`linearAccel = |mag - gravity|`
+2. **峰值检测状态机**：IDLE → RISING → HOLDING → COOLDOWN
+3. **冷却期**：两次出拳间隔至少 200ms
+4. **输出**：`{ type: 'other', hand: 'unknown', confidence, timestamp }`
+
+#### 待真板校准参数
+
+以下参数为初始估计值，**必须在真板上重新校准**：
+
+| 参数 | 当前值 | 说明 |
+|---|---|---|
+| `GRAVITY_EMA_ALPHA` | 0.98 | 重力 EMA 平滑系数 |
+| `PUNCH_LINEAR_THRESHOLD` | 2.0 | 线性加速度出拳阈值（去重力后） |
+| `COOLDOWN_MS` | 200 | 两次出拳最小间隔 (ms) |
+| `PEAK_HOLDBACK_MS` | 80 | 峰值确认等待时间 (ms) |
+| `CONFIDENCE_SCALE` | 0.08 | 置信度缩放系数 |
+
+校准方法：佩戴手表静止 10 秒记录噪声基线，然后以不同力度出拳各 20 次记录峰值分布。
 
 ## 六、第二阶段：模拟器演示闭环优化
 

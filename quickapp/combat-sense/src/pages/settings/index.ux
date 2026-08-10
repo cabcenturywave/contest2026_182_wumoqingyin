@@ -33,7 +33,7 @@
 
     <div class="footer">
       <text class="footer-text">CombatSense Edge v1.0.0</text>
-      <text class="footer-sub">Demo Mode — 不接入真实传感器</text>
+      <text class="footer-sub">{{ demoMode ? 'Demo Mode — 不接入真实传感器' : 'Hardware Mode — 使用 IMU 传感器' }}</text>
     </div>
   </div>
 </template>

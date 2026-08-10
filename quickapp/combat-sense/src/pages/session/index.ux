@@ -45,6 +45,10 @@
       <text class="total-value">{{ totalPunches }}</text>
     </div>
 
+    <div class="error-banner" if="{{ sensorError }}">
+      <text class="error-text">{{ sensorError }}</text>
+    </div>
+
     <div class="controls">
       <div class="ctrl-btn" if="{{ state === 'idle' }}" onclick="startSession">
         <text class="ctrl-text ctrl-start">开始</text>
@@ -86,7 +90,8 @@ export default {
     confBarWidth: 0,
     _timerHandle: null,
     _startTime: 0,
-    _pausedElapsed: 0
+    _pausedElapsed: 0,
+    sensorError: ''
   },
   onDestroy() {
     this.stopTimer();
@@ -119,6 +124,7 @@ export default {
   startSession() {
     this.state = 'running';
     this.timerLabel = '训练中';
+    this.sensorError = '';
     this._startTime = Date.now();
     this._pausedElapsed = 0;
     this.counts = { jab: 0, cross: 0, hook: 0, other: 0 };
@@ -129,10 +135,16 @@ export default {
     this.displayTime = '00:00';
     this.currentRound = 1;
     this.startTimer();
+
+    var settings = dataInterface.getSettings();
+    dataInterface.setMode(settings.demoMode ? 'demo' : 'hardware');
+
     var self = this;
-    dataInterface.subscribePunches(function (evt) {
-      self.onPunch(evt);
-    }, null, 8);
+    dataInterface.subscribePunches(
+      function (evt) { self.onPunch(evt); },
+      function (msg) { self.sensorError = msg; },
+      8
+    );
   },
   pauseSession() {
     this.state = 'paused';
@@ -144,12 +156,19 @@ export default {
   resumeSession() {
     this.state = 'running';
     this.timerLabel = '训练中';
+    this.sensorError = '';
     this._startTime = Date.now();
     this.startTimer();
+
+    var settings = dataInterface.getSettings();
+    dataInterface.setMode(settings.demoMode ? 'demo' : 'hardware');
+
     var self = this;
-    dataInterface.subscribePunches(function (evt) {
-      self.onPunch(evt);
-    }, null, 8);
+    dataInterface.subscribePunches(
+      function (evt) { self.onPunch(evt); },
+      function (msg) { self.sensorError = msg; },
+      8
+    );
   },
   endSession() {
     this.state = 'idle';
@@ -287,6 +306,15 @@ export default {
   font-size: 32px;
   color: #ffffff;
   font-weight: bold;
+}
+.error-banner {
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.error-text {
+  font-size: 16px;
+  color: #ff4444;
 }
 .controls {
   flex-direction: row;

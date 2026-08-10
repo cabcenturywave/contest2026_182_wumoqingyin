@@ -62,11 +62,23 @@ export default {
     lastConfidence: '84'
   },
   onReady() {
+    var self = this;
+    dataInterface.probeSensor(
+      function () {
+        self.deviceConnected = true;
+        self.deviceStatus = '传感器就绪';
+      },
+      function () {
+        self.deviceConnected = false;
+        self.deviceStatus = '传感器不可用 — 使用 Demo 数据';
+      }
+    );
+
     var session = dataInterface.getSessionSummary();
     if (session) {
-      this.hasLastSession = true;
-      this.lastDuration = (session.durationSec / 60).toFixed(1);
-      this.lastPunches = String(session.totalPunches);
+      self.hasLastSession = true;
+      self.lastDuration = (session.durationSec / 60).toFixed(1);
+      self.lastPunches = String(session.totalPunches);
       var avg = 0;
       if (session.roundBreakdown && session.roundBreakdown.length > 0) {
         var sum = 0;
@@ -75,7 +87,7 @@ export default {
         }
         avg = Math.round((sum / session.roundBreakdown.length) * 100);
       }
-      this.lastConfidence = String(avg);
+      self.lastConfidence = String(avg);
     }
   },
   goSession() {
