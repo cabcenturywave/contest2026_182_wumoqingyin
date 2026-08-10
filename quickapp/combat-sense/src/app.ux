@@ -1,10 +1,21 @@
 <script>
+import sensor from '@system.sensor';
+
 export default {
   onCreate() {
     console.log('CombatSense Edge app created');
   },
   onDestroy() {
     console.log('CombatSense Edge app destroyed');
+  },
+  onHide() {
+    try {
+      if (sensor && typeof sensor.unsubscribeAccelerometer === 'function') {
+        sensor.unsubscribeAccelerometer();
+      }
+    } catch (e) {
+      // sensor may not have been subscribed
+    }
   }
 };
 </script>
