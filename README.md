@@ -4,12 +4,13 @@
 
 CombatSense Edge 是一款面向 openvela 可穿戴平台的拳击训练辅助快应用。通过手表端 IMU 传感器（或 Demo 模拟数据）实时检测出拳动作（Jab / Cross / Hook / Other），在训练中提供实时计数、倒计时和置信度反馈，训练后给出动作统计、左右手差异、疲劳趋势和教练建议。
 
-当前状态：**Beta 1.0 — 应用骨架 + Demo 数据驱动**。已完成 RPK 打包，并在 aiot-toolkit 2.0.5 的官方 VelaSim 手表镜像中完成端到端验收：首页 → 训练 → Demo 动作实时计数 → 训练回顾均已实际运行。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树，不改动任何生产仓库。
+当前状态：**Beta 1.0 — VelaSim 交互闭环 + 黄山派真机启动**。已完成 RPK 打包与 VelaSim 端到端验收；SF32LB52 黄山派也已刷入 openvela，CombatSense 作为默认 QuickApp 在真机运行。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树。
 
 ### 已验证能力（Beta 1.0）
 
 - RPK 构建与打包（aiot-toolkit 2.0.5）
 - 官方 VelaSim 手表模拟器端到端运行
+- 黄山派真机启动 NuttX NSH、枚举 LCD/触摸/LSM6DSL，并运行 CombatSense vapp
 - 四页面完整交互闭环（Today → Session → Review → Settings）
 - Demo 数据驱动的出拳检测与训练回顾
 - Session→Review 参数流（含真实 Session/Demo Session 区分）
@@ -17,7 +18,8 @@ CombatSense Edge 是一款面向 openvela 可穿戴平台的拳击训练辅助�
 
 ### 官方差距（诚实声明）
 
-- ⚠️ 真机 openvela 硬件运行：B 家 `gxmo` 已枚举 CH340 `/dev/ttyUSB0`，但 1,000,000 波特率下未获得控制台输出，供电、固件与 NSH 仍待证实
+- ⚠️ 真机交互验收：系统和 CombatSense 进程已验证，四页人工触摸流程仍待完成
+- ⚠️ 生产发布包：真机候选使用 debug RPK；`release.rpk` 因缺少有效生产签名路径尚未生成
 - ❌ 真机 IMU 传感器校准：data-interface 中硬件参数为初始估计值
 - ❌ 网络/TLS 集成：未实现
 - ❌ openvela 独有框架深度适配：仅使用 QuickApp 基础框架
@@ -27,9 +29,9 @@ CombatSense Edge 是一款面向 openvela 可穿戴平台的拳击训练辅助�
 
 ### 后续硬件和 Agent 路线
 
-1. **建立真机控制台**：确认供电/复位/串口接线与 NSH，保留启动日志
-2. **真机验证**：真机 openvela 系统构建与 QuickApp 安装运行
-3. **Agent 集成**：LLM 对话教练、Markdown Skill、C Tool 开发
+1. **真机交互验收**：逐页验证触摸导航、训练与回顾流程
+2. **真实 IMU 接入**：将 `/dev/lsm6dsl0` 数据接入检测与校准流程
+3. **Agent 集成**：LLM 对话教练、Markdown Skill、C Tool 真机闭环
 4. **网络能力**：TLS 通信、远程训练数据同步
 
 ### 验收命令
@@ -136,7 +138,7 @@ npm run simulator:headless      # 无图形 Ubuntu VM 的实际启动命令
 - **可回放动作事件**：同一文件中的 `demoEvents` 数组包含 40 条带时间戳的模拟拳击事件（约 30 秒），由 `data-interface.js` 的 `subscribePunches()` 按时间回放。
 - **数据抽象层**（`src/common/data-interface.js`）：UI 层与传感器后端之间的接口层，提供 `subscribePunches` / `unsubscribePunches` / `getSessionSummary` / `getSettings` / `saveSettings` 等方法。**未来接入真实 IMU 时，只需替换 `subscribePunches` 内部实现，UI 层无需修改。**
 
-当前所有数据均为 Demo 模拟数据，不依赖真实硬件或 IMU 传感器。
+当前训练数据仍为 Demo 模拟数据；真机已枚举 LSM6DSL，但应用检测链尚未接入真实 IMU。
 
 ## 五、AI Coding 使用说明
 
@@ -154,4 +156,4 @@ npm run simulator:headless      # 无图形 Ubuntu VM 的实际启动命令
 
 ## 六、初步参赛提交边界
 
-官方两阶段要求的逐项状态、证据与待办见 [`CONTEST_SUBMISSION.md`](CONTEST_SUBMISSION.md)。当前提交是可审查的 Beta 1.0 软件基线，不代表真机平台适配或官方准入已通过。
+官方两阶段要求的逐项状态、证据与待办见 [`CONTEST_SUBMISSION.md`](CONTEST_SUBMISSION.md)。当前提交是可审查的 Beta 1.0 真机候选，不代表网络、Agent、真实 IMU 校准或官方准入已通过。
