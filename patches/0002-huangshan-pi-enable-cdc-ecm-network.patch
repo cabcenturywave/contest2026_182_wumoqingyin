@@ -1,0 +1,64 @@
+From: CombatSense Edge team <contest-collector@auto-commit.local>
+Subject: [PATCH] boards: sifli: enable CDC-ECM network on Huangshan Pi
+
+Replace the unused CDC ACM USB class with CDC-ECM while preserving the
+independent UART1/CH340 NSH console.  The SF32LB52 USB device controller has
+the endpoint directions required by ECM: EP1 bulk IN, EP2 bulk OUT and EP3
+interrupt IN.
+
+This patch only registers the board-side network device.  A physical USB data
+connection, host enumeration, TCP exchange and TLS request remain separate
+device-acceptance requirements.
+---
+ .../lckfb_huangshan_pi/configs/nsh/defconfig       | 10 +++++-----
+ .../sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c     |  8 ++++----
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig b/boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig
+index bca291d..ec172fe 100644
+--- a/boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig
++++ b/boards/sf32lb52/lckfb_huangshan_pi/configs/nsh/defconfig
+@@ -69,11 +69,10 @@ CONFIG_BT_POWER_MODE_CONTROL=y
+ CONFIG_BT_PRIVACY=y
+ CONFIG_BUILTIN=y
+ CONFIG_CANCELLATION_POINTS=y
+-CONFIG_CDCACM=y
+-CONFIG_CDCACM_EPBULKIN=1
+-CONFIG_CDCACM_EPBULKOUT=2
+-CONFIG_CDCACM_EPINTIN=3
+-CONFIG_CDCACM_VENDORID=0x38F4
++CONFIG_CDCECM_EPBULKIN=1
++CONFIG_CDCECM_EPBULKOUT=2
++CONFIG_CDCECM_EPINTIN=3
++CONFIG_CDCECM_VENDORID=0x38F4
+ CONFIG_CXX_LOCALIZATION=y
+ CONFIG_DEBUG_ASSERTIONS=y
+ CONFIG_DEBUG_FEATURES=y
+@@ -163,6 +162,7 @@ CONFIG_MM_REGIONS=2
+ CONFIG_MTD=y
+ CONFIG_MTD_BYTE_WRITE=y
+ CONFIG_NET=y
++CONFIG_NET_CDCECM=y
+ CONFIG_NETDB_DNSCLIENT=y
+ CONFIG_NETDEV_IFINDEX=y
+ CONFIG_NETDEV_LATEINIT=y
+diff --git a/boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c b/boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c
+index 89ae48e..e742be7 100644
+--- a/boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c
++++ b/boards/sf32lb52/lckfb_huangshan_pi/src/sifli_ap.c
+@@ -71,3 +71,3 @@
+-#ifdef CONFIG_CDCACM
+-#  include <nuttx/usb/cdcacm.h>
++#ifdef CONFIG_NET_CDCECM
++#  include <nuttx/usb/cdcecm.h>
+ #endif
+@@ -581,3 +581,3 @@ int sf32lb52_lchspi_ulp_bringup(void)
+-#ifdef CONFIG_CDCACM
+-  ret = cdcacm_initialize(0, NULL);
++#ifdef CONFIG_NET_CDCECM
++  ret = cdcecm_initialize(0, NULL);
+   if (ret < 0)
+@@ -585,2 +585,2 @@ int sf32lb52_lchspi_ulp_bringup(void)
+-      syslog(LOG_ERR, "ERROR: cdcacm_initialize failed: %d\n", ret);
++      syslog(LOG_ERR, "ERROR: cdcecm_initialize failed: %d\n", ret);
+     }

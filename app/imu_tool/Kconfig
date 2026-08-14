@@ -4,9 +4,13 @@
 
 config LVX_USE_CONTEST2026_182_IMU_TOOL
 	bool "CombatSense Edge IMU summary tool"
+	depends on SENSORS_LSM6DSL
 	default n
 	---help---
 		Enable the CombatSense Edge IMU summary tool for
-		boxing training data interaction. Currently a stub;
-		hardware reads return ENOSYS until real IMU sensor
-		is connected and calibrated.
+		boxing training data interaction.  Reads real sensor
+		data from /dev/lsm6dsl0 via the LSM6DSL I2C driver.
+		Requires CONFIG_SENSORS_LSM6DSL=y.
+		Punch classification (jab/cross/hook) is not yet
+		implemented; read_event returns -ENODATA until
+		calibration and algorithm are added.
