@@ -1,0 +1,53 @@
+From: CombatSense Edge team <contest-collector@auto-commit.local>
+Subject: [PATCH] feature: prefer generated registry headers
+
+The checked-in registry headers contain features that may be disabled by a
+board configuration.  Make the per-build JIDL output authoritative so the
+registry cannot reference implementations excluded by Kconfig.
+
+diff --git a/modules/CMakeLists.txt b/modules/CMakeLists.txt
+index 29750b5..7e07a90 100644
+--- a/modules/CMakeLists.txt
++++ b/modules/CMakeLists.txt
+@@ -18,6 +18,11 @@
+ nuttx_add_library(feature_impls STATIC)
+ set(FEATURE_TOP ${NUTTX_APPS_DIR}/frameworks/runtimes/feature)
+ list(APPEND FEATURE_INCDIR ${FEATURE_TOP}/src ${FEATURE_TOP}/src/backend/qjs)
++target_include_directories(
++    feature_impls
++    BEFORE
++    PRIVATE
++    ${CMAKE_BINARY_DIR}/jidl_generated)
+ target_include_directories(
+     feature_impls
+     PRIVATE
+@@ -37,7 +42,6 @@ endif()
+ # set some include path
+ target_include_directories(feature_impls PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+ target_include_directories(feature_impls PRIVATE ${NUTTX_APPS_DIR}/frameworks/runtimes/quickapp/src/framework/dom-protobuf)
+-target_include_directories(feature_impls PRIVATE ${CMAKE_BINARY_DIR}/jidl_generated)
+ 
+ if(CONFIG_FEATURE_SYSTEM_SENSOR)
+     set(FEATURE_SRCS ${CMAKE_CURRENT_LIST_DIR}/sensor_impl.cpp)
+diff --git a/modules/ajs_features_registry.cpp b/modules/ajs_features_registry.cpp
+index f399a03..b538dc7 100644
+--- a/modules/ajs_features_registry.cpp
++++ b/modules/ajs_features_registry.cpp
+@@ -2,7 +2,7 @@
+ #include "feature_exports.h"
+ #include "feature_description.h"
+ 
+-#include "features_registry_list.h"
++#include <features_registry_list.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -15,7 +15,7 @@ extern "C" {
+ FeatureRegistryTable g_ajs_features_registry_table = {
+     .count = 0,
+     .data = {
+-#include "features_registry_table.h"
++#include <features_registry_table.h>
+         nullptr
+     }
+ };
