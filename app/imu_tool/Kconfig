@@ -1,0 +1,12 @@
+#
+# CombatSense Edge — IMU Tool Kconfig
+#
+
+config LVX_USE_CONTEST2026_182_IMU_TOOL
+	bool "CombatSense Edge IMU summary tool"
+	default n
+	---help---
+		Enable the CombatSense Edge IMU summary tool for
+		boxing training data interaction. Currently a stub;
+		hardware reads return ENOSYS until real IMU sensor
+		is connected and calibrated.

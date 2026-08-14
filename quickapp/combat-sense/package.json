@@ -1,12 +1,13 @@
 {
   "name": "combat-sense",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.1",
   "description": "CombatSense Edge - Boxing training assistant for openvela wearable",
   "engines": {
     "node": ">=8.10"
   },
   "scripts": {
     "start": "aiot start --disableNSH",
+    "test": "node scripts/smoke-test.js",
     "build": "aiot build",
     "release": "aiot release",
     "watch": "aiot start --watch --disableNSH",

@@ -1,5 +1,14 @@
 <template>
   <div class="page">
+    <div class="demo-banner" if="{{ !isRealSession }}">
+      <text class="demo-banner-text">演示数据，非真实训练</text>
+    </div>
+    <div class="real-banner" if="{{ isRealSession && dataSource === 'hardware' }}">
+      <text class="real-banner-text">真机传感器训练回顾</text>
+    </div>
+    <div class="demo-session-banner" if="{{ isRealSession && dataSource !== 'hardware' }}">
+      <text class="demo-session-banner-text">本次训练使用演示事件，非真机采集</text>
+    </div>
     <div class="header">
       <text class="title">训练回顾</text>
     </div>
@@ -36,31 +45,46 @@
 
     <div class="hand-section">
       <text class="section-title">左右手差异</text>
-      <div class="hand-bar-container">
-        <div class="hand-bar-left" style="width: {{ leftBarWidth }}px;"></div>
-        <div class="hand-bar-right" style="width: {{ rightBarWidth }}px;"></div>
+      <div if="{{ handNotCaptured }}">
+        <text class="not-captured-text">本次未采集，待真机校准</text>
       </div>
-      <div class="hand-labels">
-        <text class="hand-label-left">左手 {{ leftPct }}%</text>
-        <text class="hand-label-right">右手 {{ rightPct }}%</text>
+      <div if="{{ !handNotCaptured }}">
+        <div class="hand-bar-container">
+          <div class="hand-bar-left" style="width: {{ leftBarWidth }}px;"></div>
+          <div class="hand-bar-right" style="width: {{ rightBarWidth }}px;"></div>
+        </div>
+        <div class="hand-labels">
+          <text class="hand-label-left">左手 {{ leftPct }}%</text>
+          <text class="hand-label-right">右手 {{ rightPct }}%</text>
+        </div>
       </div>
     </div>
 
     <div class="fatigue-section">
       <text class="section-title">疲劳趋势</text>
-      <div class="fatigue-bars">
-        <div class="fatigue-bar" for="{{ fatigueData }}" style="height: {{ $item.height }}px; background-color: {{ $item.color }};"></div>
+      <div if="{{ fatigueNotCaptured }}">
+        <text class="not-captured-text">本次未采集，待真机校准</text>
       </div>
-      <div class="fatigue-labels">
-        <text class="fl">R1</text>
-        <text class="fl">R2</text>
-        <text class="fl">R3</text>
+      <div if="{{ !fatigueNotCaptured }}">
+        <div class="fatigue-bars">
+          <div class="fatigue-bar" for="{{ fatigueData }}" style="height: {{ $item.height }}px; background-color: {{ $item.color }};"></div>
+        </div>
+        <div class="fatigue-labels">
+          <text class="fl">R1</text>
+          <text class="fl">R2</text>
+          <text class="fl">R3</text>
+        </div>
       </div>
     </div>
 
     <div class="coach-section">
       <text class="section-title">教练建议</text>
-      <text class="coach-text" for="{{ coachTips }}">{{ $item }}</text>
+      <div if="{{ coachNotCaptured }}">
+        <text class="not-captured-text">本次未采集，待真机校准</text>
+      </div>
+      <div if="{{ !coachNotCaptured }}">
+        <text class="coach-text" for="{{ coachTips }}">{{ $item }}</text>
+      </div>
     </div>
 
     <div class="back-btn" onclick="goBack">
@@ -75,6 +99,10 @@ import dataInterface from '../../common/data-interface';
 
 export default {
   private: {
+    isRealSession: false,   // true when reached from a real user session (not standalone demo access)
+    isDemoMode: true,       // true when dataSource is 'demo' (session used demo events, not hardware)
+    sessionId: '',
+    dataSource: 'demo',
     duration: 0,
     jab: 0,
     cross: 0,
@@ -84,17 +112,47 @@ export default {
     confidence: 0,
     round: 1,
     durationDisplay: '00:00',
-    leftPct: 45,
-    rightPct: 55,
-    leftBarWidth: 135,
-    rightBarWidth: 165,
+    leftPct: 0,
+    rightPct: 0,
+    leftBarWidth: 0,
+    rightBarWidth: 0,
     fatigueData: [],
-    coachTips: []
+    coachTips: [],
+    handNotCaptured: true,
+    fatigueNotCaptured: true,
+    coachNotCaptured: true
   },
   onInit() {
-    this.initFromDemo();
+    var params = this.$page.$params;
+    if (params && params.sessionId && String(params.sessionId).indexOf('session_') === 0) {
+      this.sessionId = params.sessionId;
+      this.dataSource = params.dataSource === 'hardware' ? 'hardware' : 'demo';
+      this.isRealSession = true;
+      this.isDemoMode = false;
+      this.duration = Number(params.duration) || 0;
+      this.jab = Number(params.jab) || 0;
+      this.cross = Number(params.cross) || 0;
+      this.hook = Number(params.hook) || 0;
+      this.other = Number(params.other) || 0;
+      this.total = Number(params.total) || 0;
+      this.confidence = Number(params.confidence) || 0;
+      this.round = Number(params.round) || 1;
+      var m = Math.floor(this.duration / 60);
+      var s = this.duration % 60;
+      this.durationDisplay = (m < 10 ? '0' + m : '' + m) + ':' + (s < 10 ? '0' + s : '' + s);
+      this.handNotCaptured = true;
+      this.fatigueNotCaptured = true;
+      this.coachNotCaptured = true;
+    } else {
+      this.initFromDemo();
+    }
   },
   initFromDemo() {
+    this.isRealSession = false;
+    this.isDemoMode = true;
+    this.handNotCaptured = false;
+    this.fatigueNotCaptured = false;
+    this.coachNotCaptured = false;
     var s = dataInterface.getSessionSummary();
     this.duration = s.durationSec;
     this.jab = s.punchCounts.jab;
@@ -144,6 +202,48 @@ export default {
   width: 480px;
   height: 480px;
   background-color: #0a0a0a;
+}
+.demo-banner {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+  background-color: #ff9800;
+}
+.demo-banner-text {
+  font-size: 14px;
+  color: #000000;
+  font-weight: bold;
+}
+.real-banner {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+  background-color: #34d399;
+}
+.real-banner-text {
+  font-size: 14px;
+  color: #000000;
+  font-weight: bold;
+}
+.demo-session-banner {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+  background-color: #ff9800;
+}
+.demo-session-banner-text {
+  font-size: 14px;
+  color: #000000;
+  font-weight: bold;
+}
+.not-captured-text {
+  font-size: 14px;
+  color: #888888;
+  font-style: italic;
+  margin: 4px 0;
 }
 .header {
   margin-top: 20px;
