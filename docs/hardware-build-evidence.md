@@ -46,6 +46,7 @@ cmake --build cmake_out/lckfb_huangshan_pi -- -j4
 - 受控复位后捕获 `SFBL`、`NuttShell (NSH)`；`uname -a` 返回 NuttX/arm/nsh
 - `/dev` 枚举 `lcd0`、`fb0`、`input0`、`lsm6dsl0`、`gpio0..2`、`timer0`、`rtc0`、`buttons` 等设备
 - LCD 与触摸驱动成功打开；`ps` 显示 `vapp hap://app/com.openvela.combatsense` 为运行中的 PID 8
+- `lsm6dsl_reader` 在 CombatSense 运行期间连续返回非零加速度、陀螺仪与温度样本，证明 NuttX 驱动可读取真实 IMU
 - 尚未完成人工触摸操作的四页逐项验收，也未完成真实 IMU 训练校准；这些项目不能由启动和进程证据替代
 
 真机候选的可复现集成方式：将 debug RPK 解压到板级

@@ -17,7 +17,7 @@
 | 供电与复位 | **VERIFIED** | 按官方 RTS-to-RST 约定受控复位后，捕获到 `SFBL` 启动日志 |
 | 原固件与恢复 | **VERIFIED** | 原 RT-Thread 固件已完整读取两次；16 MiB 镜像尺寸、SHA-256 与逐字节比较一致 |
 | openvela/NuttX NSH | **VERIFIED** | `sftool --verify` 刷写成功；真机捕获 `SFBL`、`NuttShell (NSH)` 与 NuttX `uname` |
-| openvela 外设基线 | **VERIFIED** | `/dev` 枚举 LCD、触摸、GPIO、定时器、RTC、按钮与 `/dev/lsm6dsl0` |
+| openvela 外设基线 | **VERIFIED** | `/dev` 枚举 LCD、触摸、GPIO、定时器、RTC、按钮与 `/dev/lsm6dsl0`；reader 已返回真实 IMU 样本 |
 | CombatSense 真机启动 | **VERIFIED** | ROMFS 含完整应用目录；`ps` 显示 `vapp hap://app/com.openvela.combatsense` 正在运行 |
 | CombatSense 真机交互 | **PARTIAL** | LCD/触摸驱动已打开；四页面人工触摸与真实 IMU 训练校准尚未完成 |
 | 生产模式 release.rpk | **BLOCKED** | `aiot release` 已执行，但本机没有有效生产签名路径；不得以 debug 证书冒充正式发布包 |
@@ -77,7 +77,7 @@ cmake --build cmake_out/lckfb_huangshan_pi -- -j4
 ## 六、诚实声明
 
 1. openvela 已刷写并启动，CombatSense 进程已在真机运行；尚未完成人工触摸四页验收。
-2. `/dev/lsm6dsl0` 枚举只证明 IMU 驱动基线，不代表 CombatSense 检测算法已真机校准。
+2. `/dev/lsm6dsl0` 已能返回真实 IMU 样本，但这不代表 CombatSense 检测算法已接入或完成真机校准。
 3. C Tool 骨架所有硬件读取返回 `-ENOSYS`，不伪造任何传感器数据。
 4. Agent Skill 设计面向未来真机集成，当前无板上 LLM/Agent 闭环。
 5. 真机候选使用 debug RPK 验证；正式参赛 `release.rpk` 仍需通过 AIoT-IDE/受控签名流程生成，私钥不得提交。
