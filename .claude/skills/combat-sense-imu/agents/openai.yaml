@@ -1,0 +1,4 @@
+interface:
+  display_name: "CombatSense IMU Integration"
+  short_description: "Implement and calibrate IMU sensor pipeline for CombatSense Edge"
+  default_prompt: "Implement or validate IMU sensor integration for CombatSense Edge, following calibration protocol and hardware verification rules."

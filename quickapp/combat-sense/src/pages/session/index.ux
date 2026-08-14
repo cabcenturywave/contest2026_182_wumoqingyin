@@ -175,9 +175,12 @@ export default {
     this.timerLabel = '计时';
     this.stopTimer();
     dataInterface.unsubscribePunches();
+    var settings = dataInterface.getSettings();
     router.replace({
       uri: '/pages/review',
       params: {
+        sessionId: 'session_' + Date.now(),
+        dataSource: settings.demoMode ? 'demo' : 'hardware',
         duration: this.elapsedSec,
         jab: this.counts.jab,
         cross: this.counts.cross,

@@ -4,7 +4,42 @@
 
 CombatSense Edge 是一款面向 openvela 可穿戴平台的拳击训练辅助快应用。通过手表端 IMU 传感器（或 Demo 模拟数据）实时检测出拳动作（Jab / Cross / Hook / Other），在训练中提供实时计数、倒计时和置信度反馈，训练后给出动作统计、左右手差异、疲劳趋势和教练建议。
 
-当前状态：**应用骨架 + Demo 数据驱动**。已完成 RPK 打包，并在 aiot-toolkit 2.0.5 的官方 VelaSim 手表镜像中完成端到端验收：首页 → 训练 → Demo 动作实时计数 → 训练回顾均已实际运行。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树，不改动任何生产仓库。
+当前状态：**Beta 1.0 — 应用骨架 + Demo 数据驱动**。已完成 RPK 打包，并在 aiot-toolkit 2.0.5 的官方 VelaSim 手表镜像中完成端到端验收：首页 → 训练 → Demo 动作实时计数 → 训练回顾均已实际运行。代码仅位于 contest 专属仓，通过 manifest `<linkfile>` 映射到 openvela 编译树，不改动任何生产仓库。
+
+### 已验证能力（Beta 1.0）
+
+- RPK 构建与打包（aiot-toolkit 2.0.5）
+- 官方 VelaSim 手表模拟器端到端运行
+- 四页面完整交互闭环（Today → Session → Review → Settings）
+- Demo 数据驱动的出拳检测与训练回顾
+- Session→Review 参数流（含真实 Session/Demo Session 区分）
+- 自动化静态契约与语义检查（smoke-test.js）
+
+### 官方差距（诚实声明）
+
+- ⚠️ 真机 openvela 硬件运行：B 家 `gxmo` 已枚举 CH340 `/dev/ttyUSB0`，但 1,000,000 波特率下未获得控制台输出，供电、固件与 NSH 仍待证实
+- ❌ 真机 IMU 传感器校准：data-interface 中硬件参数为初始估计值
+- ❌ 网络/TLS 集成：未实现
+- ❌ openvela 独有框架深度适配：仅使用 QuickApp 基础框架
+- ❌ 新增 C 外设驱动：未实现
+- ❌ 官方准入测试：未在真机上运行
+- ⚠️ Agent 阶段要求：2 份 Markdown Skill 与 1 个 C Tool 骨架已创建；真机 LLM 对话、工具注册与多步硬件闭环未完成
+
+### 后续硬件和 Agent 路线
+
+1. **建立真机控制台**：确认供电/复位/串口接线与 NSH，保留启动日志
+2. **真机验证**：真机 openvela 系统构建与 QuickApp 安装运行
+3. **Agent 集成**：LLM 对话教练、Markdown Skill、C Tool 开发
+4. **网络能力**：TLS 通信、远程训练数据同步
+
+### 验收命令
+
+```bash
+cd quickapp/combat-sense
+npm ci && npm test                      # 静态契约与语义检查
+npm run build                           # RPK 构建
+npm run simulator:headless              # 模拟器启动验证
+```
 
 ## 二、选题方向
 
@@ -33,7 +68,10 @@ contest2026_182_wumoqingyin/
 │           └── settings/index.ux  # Settings — 佩戴手/站姿/训练类型/Demo 开关
 ├── quickapp/hello_quickapp/       # 快应用示例骨架
 ├── app/hello_app/                 # 应用示例骨架
+├── app/imu_tool/                  # Agent C Tool 骨架（硬件读取返回 ENOSYS）
+├── .claude/skills/                # QuickApp / IMU / Agent Markdown Skills
 ├── board/contest_board/           # 板级适配示例骨架
+├── CONTEST_SUBMISSION.md          # 官方要求矩阵与提交边界
 ├── logs/                          # AI Coding 日志（格式见 logs/README.md）
 ├── contest2026_182_wumoqingyin.xml # repo manifest，含 linkfile 映射
 ├── openvela.xml                   # openvela 基础工程 manifest
@@ -46,6 +84,7 @@ contest2026_182_wumoqingyin/
 | 本仓路径 | 映射到 openvela 编译树 |
 | --- | --- |
 | `app/hello_app` | `packages/demos/contest2026_182_hello_app` |
+| `app/imu_tool` | `packages/demos/contest2026_182_imu_tool` |
 | `quickapp/hello_quickapp` | `packages/apps/contest2026_182_hello_quickapp` |
 | `quickapp/combat-sense` | `packages/apps/contest2026_182_combat_sense` |
 | `board/contest_board` | `vendor/openvela/boards/contest2026_182_board` |
@@ -60,7 +99,7 @@ contest2026_182_wumoqingyin/
 cd quickapp/combat-sense
 npm install
 npm run build
-# 输出: dist/com.openvela.combatsense.debug.1.0.0.rpk
+# 输出: dist/com.openvela.combatsense.debug.1.0.0-beta.1.rpk
 ```
 
 此步骤已通过 aiot-toolkit 验证，可正常生成 RPK 文件。
@@ -112,3 +151,7 @@ npm run simulator:headless      # 无图形 Ubuntu VM 的实际启动命令
 - **敏感信息处理**：提交前对日志中的 API Key、Token 等敏感信息进行脱敏扫描，确保不含明文密钥。
 
 完整对话日志见 `logs/` 目录。
+
+## 六、初步参赛提交边界
+
+官方两阶段要求的逐项状态、证据与待办见 [`CONTEST_SUBMISSION.md`](CONTEST_SUBMISSION.md)。当前提交是可审查的 Beta 1.0 软件基线，不代表真机平台适配或官方准入已通过。

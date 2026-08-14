@@ -1,0 +1,4 @@
+interface:
+  display_name: "CombatSense Agent Coaching"
+  short_description: "Multi-step reasoning and tool orchestration for boxing training coaching agent"
+  default_prompt: "Design, implement, or review the CombatSense Agent coaching pipeline with strict hardware evidence boundaries."

@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_LVX_USE_CONTEST2026_182_IMU_TOOL),y)
+  PROGDIRS += imu_tool
+endif

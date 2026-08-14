@@ -10,6 +10,7 @@
 
   <project path="contest2026_182_wumoqingyin" name="contest2026_182_wumoqingyin">
     <linkfile src="app/hello_app" dest="packages/demos/contest2026_182_hello_app"/>
+    <linkfile src="app/imu_tool" dest="packages/demos/contest2026_182_imu_tool"/>
     <linkfile src="quickapp/hello_quickapp" dest="packages/apps/contest2026_182_hello_quickapp"/>
     <linkfile src="quickapp/combat-sense" dest="packages/apps/contest2026_182_combat_sense"/>
     <linkfile src="board/contest_board" dest="vendor/openvela/boards/contest2026_182_board"/>
