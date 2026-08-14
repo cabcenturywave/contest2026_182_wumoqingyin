@@ -31,7 +31,7 @@
 | 官方要求 | 状态 | 仓库证据 / 下一步 |
 |---|---|---|
 | 系统启动、串口、NSH、GPIO/定时器 | **VERIFIED** | 真机已启动 NuttX NSH，GPIO 与 timer 设备节点已枚举。 |
-| Wi-Fi/以太网、TCP/IP + TLS、外网 | **BLOCKED** | 尚无板上 openvela 网络与 TLS 证据。 |
+| Wi-Fi/以太网、TCP/IP + TLS、外网 | **PARTIAL / PHYSICAL_LINK_BLOCKED** | CDC-ECM 已在真机注册非 loopback `eth0`；官方资料确认 PA36/PA35 是排针 USB_DM/USB_DP，但尚未连接到 gxmo，TCP、DNS、TLS 与外网仍未验证。 |
 | 至少 2 项 openvela 独有组件适配 | **BLOCKED** | QuickApp/VelaSim 仅是软件基线，不等于在目标板上完成两项框架适配。 |
 | 至少 1 项 NuttX 上游不存在的新外设驱动 | **BLOCKED** | `app/imu_tool` 是 Agent Tool 骨架，不是新外设驱动。 |
 | openvela 官方准入测试 | **BLOCKED** | 待赛题组发布并在目标板上执行。 |
@@ -48,15 +48,16 @@
 |---|---|---|
 | 目标板运行 Agent，配置 LLM 并对话 | **BLOCKED** | MiMo 开发日志证明的是开发过程，不是目标板 Agent 运行。 |
 | 至少 2 个 Markdown Skill | **SCAFFOLDED** | `combat-sense-imu` 与 `combat-sense-agent` 已创建，尚未装入板上 Agent 验证。 |
-| 至少 1 个 C Tool 并与硬件交互 | **SCAFFOLDED** | `app/imu_tool` host stub 可编译，硬件读取返回 `-ENOSYS`，尚未注册到 Agent 工具系统。 |
+| 至少 1 个 C Tool 并与硬件交互 | **DEVICE_VERIFIED / AGENT_PENDING** | `app/imu_tool` 已在真机通过 `imu_tool 10` 有界读取真实 `/dev/lsm6dsl0` 样本并完成清理；Agent 工具注册尚未验证。 |
 | 真机指令→推理→硬件工具→结果，含 2+ 工具多步协作 | **BLOCKED** | Skill 中仅有 Probe/Aggregate/Advise 设计，无真机执行证据。 |
 
 ## 四、新增内容清单
 
 - Markdown Skills：`.claude/skills/combat-sense-imu/` 与 `.claude/skills/combat-sense-agent/`
-- C Tool 骨架：`app/imu_tool/`
+- C Tool 构建候选：`app/imu_tool/`
 - 要求矩阵：本文件
 - 构建修复补丁：`patches/0001-feature-registry-use-generated-headers.patch`
+- CDC-ECM 板级补丁：`patches/0002-huangshan-pi-enable-cdc-ecm-network.patch`
 - 真机与构建证据：`docs/hardware-build-evidence.md`
 - OpenCode/MiMo 对话记录：`logs/cabcenturywave/`
 
@@ -78,6 +79,6 @@ cmake --build cmake_out/lckfb_huangshan_pi -- -j4
 
 1. openvela 已刷写并启动，CombatSense 进程已在真机运行；尚未完成人工触摸四页验收。
 2. `/dev/lsm6dsl0` 已能返回真实 IMU 样本，但这不代表 CombatSense 检测算法已接入或完成真机校准。
-3. C Tool 骨架所有硬件读取返回 `-ENOSYS`，不伪造任何传感器数据。
+3. C Tool 的 host stub 所有硬件读取返回 `-ENOSYS`；目标端已通过 10 次有界真实原始 IMU 采样，拳型分类未校准时仍返回 `-ENODATA`，不伪造事件。
 4. Agent Skill 设计面向未来真机集成，当前无板上 LLM/Agent 闭环。
 5. 真机候选使用 debug RPK 验证；正式参赛 `release.rpk` 仍需通过 AIoT-IDE/受控签名流程生成，私钥不得提交。

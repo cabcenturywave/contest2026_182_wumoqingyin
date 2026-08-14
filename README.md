@@ -21,11 +21,11 @@ CombatSense Edge 是一款面向 openvela 可穿戴平台的拳击训练辅助�
 - ⚠️ 真机交互验收：系统和 CombatSense 进程已验证，四页人工触摸流程仍待完成
 - ⚠️ 生产发布包：真机候选使用 debug RPK；`release.rpk` 因缺少有效生产签名路径尚未生成
 - ❌ 真机 IMU 传感器校准：data-interface 中硬件参数为初始估计值
-- ❌ 网络/TLS 集成：未实现
+- ⚠️ 网络/TLS 集成：板端 CDC-ECM `eth0` 已注册；原生 USB 物理链路、TCP、DNS、TLS 与外网仍未验证
 - ❌ openvela 独有框架深度适配：仅使用 QuickApp 基础框架
 - ❌ 新增 C 外设驱动：未实现
 - ❌ 官方准入测试：未在真机上运行
-- ⚠️ Agent 阶段要求：2 份 Markdown Skill 与 1 个 C Tool 骨架已创建；真机 LLM 对话、工具注册与多步硬件闭环未完成
+- ⚠️ Agent 阶段要求：2 份 Markdown Skill 已创建；IMU C Tool 已在真机完成 10 次有界真实采样与清理，但 Agent 工具注册、真机 LLM 对话与多步硬件闭环仍未完成
 
 ### 后续硬件和 Agent 路线
 
@@ -70,7 +70,7 @@ contest2026_182_wumoqingyin/
 │           └── settings/index.ux  # Settings — 佩戴手/站姿/训练类型/Demo 开关
 ├── quickapp/hello_quickapp/       # 快应用示例骨架
 ├── app/hello_app/                 # 应用示例骨架
-├── app/imu_tool/                  # Agent C Tool 骨架（硬件读取返回 ENOSYS）
+├── app/imu_tool/                  # IMU C Tool（目标端真实 ABI；host stub 返回 ENOSYS）
 ├── .claude/skills/                # QuickApp / IMU / Agent Markdown Skills
 ├── board/contest_board/           # 板级适配示例骨架
 ├── CONTEST_SUBMISSION.md          # 官方要求矩阵与提交边界
