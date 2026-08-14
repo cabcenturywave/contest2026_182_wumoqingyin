@@ -8,20 +8,19 @@
 - **当前版本**：Beta 1.0
 - **代码仓库**：仅 contest 专属仓，通过 manifest linkfile 映射到 openvela 编译树
 
-## 二、硬件环境事实声明
+## 二、真机环境事实声明
 
 | 项目 | 状态 | 说明 |
-|------|------|------|
-| B 家 gxmo 设备 | 已连接 | USB 已枚举，候选真机串口已识别 |
-| 串口设备 | `/dev/ttyUSB0` | CH340 芯片，已枚举为空闲状态 |
-| 目标波特率 | `CONFIG_UART_BAUD=1000000` | defconfig 中已配置 |
-| 串口控制台 | **未证实** | 在 1M 波特率发送换行未获得任何输出 |
-| 固件运行状态 | **未证实** | 无法确认设备是否运行 openvela |
-| 供电状态 | **未证实** | USB 已连接但未确认系统启动 |
-| IMU 传感器 | **未验证** | 未在真机上测试加速度计 |
-| 真机 openvela 运行 | **未完成** | 不能声称真机已运行 |
+|---|---|---|
+| B 家 gxmo | **VERIFIED** | 主机在线，CH340 `/dev/ttyUSB0` 可枚举 |
+| 串口配置 | **VERIFIED** | 板级 defconfig 为 `CONFIG_UART_BAUD=1000000`，8N1，无流控 |
+| 供电与复位 | **VERIFIED** | 按官方 RTS-to-RST 约定受控复位后，捕获到 `SFBL` 启动日志 |
+| 当前固件 | **VERIFIED** | 当前运行 SiFli/RT-Thread 风格固件，控制台是 `msh />`，不是 openvela/NuttX NSH |
+| IMU 硬件基线 | **VERIFIED** | 启动日志显示 LSM6DSL 加速度计/陀螺仪初始化成功，`list_device` 显示 `acce_lsm` / `gyro_lsm` / `step_lsm` |
+| openvela/NuttX NSH | **BUILD_VERIFIED** | openvela 镜像已完整构建；尚未备份原固件、烧录和捕获 NSH 启动证据 |
+| CombatSense 真机运行 | **BLOCKED** | 现有固件不是 openvela，尚无 CombatSense 上板证据 |
 
-> **底线**：候选真机串口已连接，但控制台/供电/固件运行均未证实。严禁写成"真机已运行"。
+> **边界**：真机与 IMU 已确认存在且当前固件可运行，但这不能替代 openvela/NuttX NSH、CombatSense 或官方准入证据。
 
 ## 三、官方赛题两阶段要求矩阵
 
@@ -29,8 +28,8 @@
 
 | 官方要求 | 状态 | 仓库证据 / 下一步 |
 |---|---|---|
-| 系统启动、串口、NSH、GPIO/定时器 | **BLOCKED** | 仅枚举 CH340；控制台无输出。先确认供电/复位/接线并保留启动证据。 |
-| Wi-Fi/以太网、TCP/IP + TLS、外网 | **BLOCKED** | 尚无板上网络与 TLS 证据。 |
+| 系统启动、串口、NSH、GPIO/定时器 | **BUILD_VERIFIED** | SF32LB52 openvela 已生成 `nuttx.bin`；当前真机仍是 RT-Thread，须先备份原固件再烧录并验证 NSH/GPIO/定时器。 |
+| Wi-Fi/以太网、TCP/IP + TLS、外网 | **BLOCKED** | 尚无板上 openvela 网络与 TLS 证据。 |
 | 至少 2 项 openvela 独有组件适配 | **BLOCKED** | QuickApp/VelaSim 仅是软件基线，不等于在目标板上完成两项框架适配。 |
 | 至少 1 项 NuttX 上游不存在的新外设驱动 | **BLOCKED** | `app/imu_tool` 是 Agent Tool 骨架，不是新外设驱动。 |
 | openvela 官方准入测试 | **BLOCKED** | 待赛题组发布并在目标板上执行。 |
@@ -41,10 +40,8 @@
 - **VERIFIED**：QuickApp 四页交互、40 条 Demo 事件、RPK 构建、VelaSim 安装与首页启动。
 - **VERIFIED**：115 项静态契约/语义检查。
 
-### 第二阶段：Agent 能力 + 硬件集成
+### 第二阶段：AI Agent 智能应用（进阶必做）
 
-| 要求项 | 状态 | 详细说明 |
-|--------|------|----------|
 | 官方要求 | 状态 | 仓库证据 / 下一步 |
 |---|---|---|
 | 目标板运行 Agent，配置 LLM 并对话 | **BLOCKED** | MiMo 开发日志证明的是开发过程，不是目标板 Agent 运行。 |
@@ -54,48 +51,30 @@
 
 ## 四、新增内容清单
 
-### Markdown Agent Skills
-
-| Skill | 路径 | 用途 |
-|-------|------|------|
-| combat-sense-imu | `.claude/skills/combat-sense-imu/SKILL.md` | IMU 传感器集成、校准协议、峰值检测调优 |
-| combat-sense-agent | `.claude/skills/combat-sense-agent/SKILL.md` | Agent 多步推理、3 工具协作、硬件证据边界 |
-
-### C Tool 骨架
-
-| 文件 | 说明 |
-|------|------|
-| `app/imu_tool/imu_tool_main.c` | 8 个接口函数 + host stub 入口 |
-| `app/imu_tool/Makefile` | NuttX Make 构建 |
-| `app/imu_tool/CMakeLists.txt` | NuttX CMake 构建 |
-| `app/imu_tool/Kconfig` | menuconfig 选项 |
-| `app/imu_tool/README.md` | 接口文档 + host 编译命令 |
-
-### manifest 更新
-
-`contest2026_182_wumoqingyin.xml` 新增 linkfile：
-
-```xml
-<linkfile src="app/imu_tool" dest="packages/demos/contest2026_182_imu_tool"/>
-```
+- Markdown Skills：`.claude/skills/combat-sense-imu/` 与 `.claude/skills/combat-sense-agent/`
+- C Tool 骨架：`app/imu_tool/`
+- 要求矩阵：本文件
+- 构建修复补丁：`patches/0001-feature-registry-use-generated-headers.patch`
+- 真机与构建证据：`docs/hardware-build-evidence.md`
+- OpenCode/MiMo 对话记录：`logs/cabcenturywave/`
 
 ## 五、验证命令
 
 ```bash
-# QuickApp 静态契约检查
-cd quickapp/combat-sense && npm ci && npm test
+cd quickapp/combat-sense && npm ci && npm test && npm run build
+cd ../../app/imu_tool && gcc -DIMU_TOOL_HOST_STUB -o imu_tool_stub imu_tool_main.c -lm && ./imu_tool_stub
+cd ../.. && node scripts/contest-verify.js
 
-# C Tool host stub 编译验证
-cd app/imu_tool && gcc -DIMU_TOOL_HOST_STUB -o imu_tool_stub imu_tool_main.c -lm && ./imu_tool_stub
-
-# 仓库提交验证
-node scripts/contest-verify.js
+# 在 openvela 全量工作区应用构建修复并构建目标板镜像
+git -C frameworks/runtimes/feature apply \
+  /path/to/contest2026_182_wumoqingyin/patches/0001-feature-registry-use-generated-headers.patch
+source build/envsetup.sh
+cmake --build cmake_out/lckfb_huangshan_pi -- -j4
 ```
 
 ## 六、诚实声明
 
-1. 当前所有 IMU 硬件参数为初始估计值，未经真机校准。
-2. 候选真机串口（gxmo / CH340 / `/dev/ttyUSB0`）已连接，但控制台输出、固件运行、IMU 传感器均未证实。
+1. openvela 目标板镜像已构建成功，但尚未备份原固件、烧录或取得 NSH 真机启动证据；当前已验证的真机固件仍是 SiFli/RT-Thread 基线。
+2. LSM6DSL 初始化与设备枚举只证明 IMU 硬件基线，不代表 CombatSense 检测算法已真机校准。
 3. C Tool 骨架所有硬件读取返回 `-ENOSYS`，不伪造任何传感器数据。
-4. Agent Skill 设计面向未来真机集成，当前无 LLM API 接入。
-5. 本提交为骨架 + 模拟器验证阶段，不声称真机已完成。
+4. Agent Skill 设计面向未来真机集成，当前无板上 LLM/Agent 闭环。

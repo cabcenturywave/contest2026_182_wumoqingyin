@@ -3,7 +3,7 @@
   "team_id": "contest2026_182_wumoqingyin",
   "github_login": "cabcenturywave",
   "generator": "opencode-collector@1.3.0",
-  "updated_at": "2026-08-14T09:33:44.900Z",
+  "updated_at": "2026-08-14T09:56:49.440Z",
   "sessions": [
     {
       "session_id": "ses_0432227b4ffe6iXQuCP01YgK18",
@@ -211,6 +211,19 @@
       "collection_mode": "cli",
       "health": "ok",
       "title": "CombatSense initial contest submission scaffolding",
+      "model": "xiaomi-token-plan/mimo-v2.5"
+    },
+    {
+      "session_id": "ses_0004da537ffeD9ove79TvcDbUi",
+      "tool": "opencode",
+      "started_at": "2026-08-14T09:55:06.568Z",
+      "last_event_at": "2026-08-14T09:56:49.440Z",
+      "event_count": 24,
+      "raw_message_count": 10,
+      "file_path": "logs/cabcenturywave/2026-08-14/opencode__ses_0004da537ffeD9ove79TvcDbUi.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Beta 1.0 构建复核与风险评估",
       "model": "xiaomi-token-plan/mimo-v2.5"
     }
   ]
