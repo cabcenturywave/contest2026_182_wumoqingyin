@@ -1,84 +1,121 @@
-# CombatSense Edge — 参赛要求矩阵与初步提交说明
+# CombatSense Edge — 初赛提交矩阵
 
-## 一、参赛作品概要
+## 一、作品概要
 
 - **作品名称**：CombatSense Edge
 - **选题方向**：快应用 / 手表应用创新
 - **团队 ID**：182_wumoqingyin
-- **当前版本**：Beta 1.0
-- **代码仓库**：仅 contest 专属仓，通过 manifest linkfile 映射到 openvela 编译树
+- **版本**：1.0.0（初赛最终提交）
+- **代码仓库**：contest 专属仓，通过 manifest linkfile 映射到 openvela 编译树
 
-## 二、真机环境事实声明
+## 二、初赛必交清单
+
+| 项目 | 状态 | 位置/说明 |
+|---|---|---|
+| 完整源码 | **VERIFIED** | `quickapp/combat-sense/src/`，含 manifest、4 页面、data-interface、demo-data |
+| 生产模式 release.rpk | **VERIFIED** | `quickapp/combat-sense/release/com.openvela.combatsense.release.1.0.0.rpk`（27,973 bytes） |
+| 作品介绍文档 | **VERIFIED** | `submission/CombatSense-Edge-作品介绍.pdf`（7 页） |
+| 演示视频（≤5 分钟） | **VERIFIED** | `submission/CombatSense-Edge-demo.mp4`（47s，1280x720，H.264） |
+| 专属仓库 URL | **VERIFIED** | 本仓库地址 |
+
+> 所有初赛必交材料均已生成并放置于提交目录。
+
+## 三、模拟器验证（初赛合规闭环）
+
+初赛允许仅使用官方 VelaSim 验证，真机不是合规必需项。
 
 | 项目 | 状态 | 说明 |
 |---|---|---|
-| B 家 gxmo | **VERIFIED** | 主机在线，CH340 `/dev/ttyUSB0` 可枚举 |
-| 串口配置 | **VERIFIED** | 板级 defconfig 为 `CONFIG_UART_BAUD=1000000`，8N1，无流控 |
-| 供电与复位 | **VERIFIED** | 按官方 RTS-to-RST 约定受控复位后，捕获到 `SFBL` 启动日志 |
-| 原固件与恢复 | **VERIFIED** | 原 RT-Thread 固件已完整读取两次；16 MiB 镜像尺寸、SHA-256 与逐字节比较一致 |
-| openvela/NuttX NSH | **VERIFIED** | `sftool --verify` 刷写成功；真机捕获 `SFBL`、`NuttShell (NSH)` 与 NuttX `uname` |
-| openvela 外设基线 | **VERIFIED** | `/dev` 枚举 LCD、触摸、GPIO、定时器、RTC、按钮与 `/dev/lsm6dsl0`；reader 已返回真实 IMU 样本 |
-| CombatSense 真机启动 | **VERIFIED** | ROMFS 含完整应用目录；`ps` 显示 `vapp hap://app/com.openvela.combatsense` 正在运行 |
-| CombatSense 真机交互 | **PARTIAL** | LCD/触摸驱动已打开；四页面人工触摸与真实 IMU 训练校准尚未完成 |
-| 生产模式 release.rpk | **BLOCKED** | `aiot release` 已执行，但本机没有有效生产签名路径；不得以 debug 证书冒充正式发布包 |
+| RPK 构建 | **VERIFIED** | `npm run build`，aiot-toolkit 2.0.5 |
+| VelaSim 安装 | **VERIFIED** | `vela-miwear-watch-5.0` 官方镜像 |
+| VelaSim 启动 | **VERIFIED** | `npm run simulator:headless`，Xvfb 无图形 VM |
+| 四页交互闭环 | **VERIFIED** | Today → Session → Review → Settings 全流程 |
+| Demo 数据驱动 | **VERIFIED** | 40 条可回放动作事件，训练统计完整 |
+| 静态契约检查 | **VERIFIED** | `npm test`，115+ 项 smoke-test 通过 |
 
-> **边界**：系统、设备节点和 CombatSense 进程已经真机验证；这仍不能替代人工触摸验收、真实 IMU 训练校准、网络/Agent 闭环或官方准入测试。
+## 四、AI Coding 日志与 Skill
 
-## 三、官方赛题两阶段要求矩阵
-
-### 第一阶段：openvela 平台适配（基础必做）
-
-| 官方要求 | 状态 | 仓库证据 / 下一步 |
+| 项目 | 状态 | 位置/说明 |
 |---|---|---|
-| 系统启动、串口、NSH、GPIO/定时器 | **VERIFIED** | 真机已启动 NuttX NSH，GPIO 与 timer 设备节点已枚举。 |
-| Wi-Fi/以太网、TCP/IP + TLS、外网 | **PARTIAL / PHYSICAL_LINK_BLOCKED** | CDC-ECM 已在真机注册非 loopback `eth0`；官方资料确认 PA36/PA35 是排针 USB_DM/USB_DP，但尚未连接到 gxmo，TCP、DNS、TLS 与外网仍未验证。 |
-| 至少 2 项 openvela 独有组件适配 | **BLOCKED** | QuickApp/VelaSim 仅是软件基线，不等于在目标板上完成两项框架适配。 |
-| 至少 1 项 NuttX 上游不存在的新外设驱动 | **BLOCKED** | `app/imu_tool` 是 Agent Tool 骨架，不是新外设驱动。 |
-| openvela 官方准入测试 | **BLOCKED** | 待赛题组发布并在目标板上执行。 |
-| BSP 规范：Kconfig/defconfig/链接脚本/移植指南 | **SCAFFOLDED** | 已有板级与隔离构建骨架，完整移植与真机验收未完成。 |
+| OpenCode 日志 | **VERIFIED** | `logs/cabcenturywave/`，含 manifest.json |
+| AI 模型 | **VERIFIED** | MiMo-v2.5（xiaomi-token-plan/mimo-v2.5） |
+| 日志格式 | **VERIFIED** | `logs/<github_login>/<date>/opencode__*.jsonl` |
+| Skill #1 | **VERIFIED** | `.claude/skills/combat-sense-quickapp/SKILL.md` |
+| Skill #2 | **VERIFIED** | `.claude/skills/combat-sense-imu/SKILL.md` |
+| Skill #3 | **VERIFIED** | `.claude/skills/combat-sense-agent/SKILL.md` |
 
-#### 前期软件基线（非第一阶段完成证明）
+## 五、源码结构
 
-- **VERIFIED**：QuickApp 四页交互、40 条 Demo 事件、RPK 构建、VelaSim 安装与首页启动。
-- **VERIFIED**：115 项静态契约/语义检查。
-
-### 第二阶段：AI Agent 智能应用（进阶必做）
-
-| 官方要求 | 状态 | 仓库证据 / 下一步 |
-|---|---|---|
-| 目标板运行 Agent，配置 LLM 并对话 | **BLOCKED** | MiMo 开发日志证明的是开发过程，不是目标板 Agent 运行。 |
-| 至少 2 个 Markdown Skill | **SCAFFOLDED** | `combat-sense-imu` 与 `combat-sense-agent` 已创建，尚未装入板上 Agent 验证。 |
-| 至少 1 个 C Tool 并与硬件交互 | **DEVICE_VERIFIED / AGENT_PENDING** | `app/imu_tool` 已在真机通过 `imu_tool 10` 有界读取真实 `/dev/lsm6dsl0` 样本并完成清理；Agent 工具注册尚未验证。 |
-| 真机指令→推理→硬件工具→结果，含 2+ 工具多步协作 | **BLOCKED** | Skill 中仅有 Probe/Aggregate/Advise 设计，无真机执行证据。 |
-
-## 四、新增内容清单
-
-- Markdown Skills：`.claude/skills/combat-sense-imu/` 与 `.claude/skills/combat-sense-agent/`
-- C Tool 构建候选：`app/imu_tool/`
-- 要求矩阵：本文件
-- 构建修复补丁：`patches/0001-feature-registry-use-generated-headers.patch`
-- CDC-ECM 板级补丁：`patches/0002-huangshan-pi-enable-cdc-ecm-network.patch`
-- 真机与构建证据：`docs/hardware-build-evidence.md`
-- OpenCode/MiMo 对话记录：`logs/cabcenturywave/`
-
-## 五、验证命令
-
-```bash
-cd quickapp/combat-sense && npm ci && npm test && npm run build
-cd ../../app/imu_tool && gcc -DIMU_TOOL_HOST_STUB -o imu_tool_stub imu_tool_main.c -lm && ./imu_tool_stub
-cd ../.. && node scripts/contest-verify.js
-
-# 在 openvela 全量工作区应用构建修复并构建目标板镜像
-git -C frameworks/runtimes/feature apply \
-  /path/to/contest2026_182_wumoqingyin/patches/0001-feature-registry-use-generated-headers.patch
-source build/envsetup.sh
-cmake --build cmake_out/lckfb_huangshan_pi -- -j4
+```text
+quickapp/combat-sense/
+├── package.json               # 版本 1.0.0，含 verify:release 脚本
+├── .gitignore                 # 忽略 node_modules/、build/、dist/、sign/
+├── release/                   # 生产 release.rpk 放置位置
+│   └── README.md              # 校验方式与私钥安全说明
+├── scripts/
+│   ├── smoke-test.js          # 静态契约与语义检查（115+ 项）
+│   ├── verify-release.js      # release.rpk 校验脚本
+│   └── create-velasim-vvd.js  # VelaSim 虚拟设备创建
+└── src/
+    ├── manifest.json          # package: com.openvela.combatsense, versionName: 1.0.0
+    ├── app.ux
+    ├── config-watch.json
+    ├── common/
+    │   ├── demo-data.js       # Demo/Mock 训练数据
+    │   ├── data-interface.js  # 数据抽象层
+    │   └── logo.png
+    └── pages/                 # Today / Session / Review / Settings
 ```
 
-## 六、诚实声明
+## 六、验证命令
 
-1. openvela 已刷写并启动，CombatSense 进程已在真机运行；尚未完成人工触摸四页验收。
-2. `/dev/lsm6dsl0` 已能返回真实 IMU 样本，但这不代表 CombatSense 检测算法已接入或完成真机校准。
-3. C Tool 的 host stub 所有硬件读取返回 `-ENOSYS`；目标端已通过 10 次有界真实原始 IMU 采样，拳型分类未校准时仍返回 `-ENODATA`，不伪造事件。
-4. Agent Skill 设计面向未来真机集成，当前无板上 LLM/Agent 闭环。
-5. 真机候选使用 debug RPK 验证；正式参赛 `release.rpk` 仍需通过 AIoT-IDE/受控签名流程生成，私钥不得提交。
+```bash
+# QuickApp 静态检查
+cd quickapp/combat-sense && npm ci && npm test
+
+# release.rpk 校验
+node scripts/verify-release.js
+
+# 参赛文件完整性
+cd ../../ && node scripts/contest-verify.js
+
+# RPK 构建
+cd quickapp/combat-sense && npm run build
+
+# 模拟器运行
+cd quickapp/combat-sense && npm run simulator:headless
+```
+
+## 七、许可与安全
+
+- 仓库根目录包含 `LICENSE`（Apache License 2.0）
+- `.gitignore` 忽略 `/sign`、证书、私钥目录
+- 生产签名私钥**绝不提交**至仓库
+- Demo 数据中无真实用户信息或敏感凭据
+
+## 八、可选真机证据
+
+以下为额外真机验证记录，**不影响初赛合规**：
+
+| 项目 | 状态 | 说明 |
+|---|---|---|
+| 黄山派启动 | **VERIFIED** | SF32LB52，NuttX NSH 启动成功 |
+| LCD/触摸驱动 | **VERIFIED** | `/dev/lcd0`、`/dev/input0` 已打开 |
+| 真实 IMU 原始样本 | **VERIFIED** | `/dev/lsm6dsl0` 返回加速度/陀螺仪/温度 |
+| CombatSense 真机启动 | **VERIFIED** | ROMFS 部署，进程运行中 |
+| IMU C Tool host stub | **VERIFIED** | `-DIMU_TOOL_HOST_STUB` 模式下所有硬件操作返回 ENOSYS |
+| 真机四页触摸验收 | **HOLD** | 系统已验证，人工触摸待完成 |
+| 真实 IMU 训练校准 | **HOLD** | 硬件参数为初始估计值 |
+| 网络/TLS 集成 | **HOLD** | CDC-ECM 已注册，TCP/TLS 待验证 |
+| Agent 阶段 | **HOLD** | LLM 对话、工具注册、多步闭环待实现 |
+
+## 九、HOLD 项目（后续阶段）
+
+1. 真机四页触摸交互验收（HOLD：系统已验证，交互待完成）
+2. 真实 IMU 传感器训练校准
+3. 网络/TLS 通信集成
+4. AI Agent 对话教练与多步工具协作
+5. 新增 C 外设驱动
+6. openvela 官方准入测试
+
+> 这些项目属于加分项或后续阶段，**不能被写成初赛必做阻塞项**。

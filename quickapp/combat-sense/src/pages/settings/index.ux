@@ -32,7 +32,7 @@
     </div>
 
     <div class="footer">
-      <text class="footer-text">CombatSense Edge Beta 1.0</text>
+      <text class="footer-text">CombatSense Edge 1.0.0</text>
       <text class="footer-sub">{{ demoMode ? 'Demo Mode — 不接入真实传感器' : 'Hardware Mode — 使用 IMU 传感器' }}</text>
     </div>
   </div>

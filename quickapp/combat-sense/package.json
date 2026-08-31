@@ -1,6 +1,6 @@
 {
   "name": "combat-sense",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0",
   "description": "CombatSense Edge - Boxing training assistant for openvela wearable",
   "engines": {
     "node": ">=8.10"
@@ -14,7 +14,8 @@
     "simulator:init": "aiot initEmulatorEnv",
     "simulator:create-vvd": "node scripts/create-velasim-vvd.js",
     "simulator:headless": "xvfb-run -a -s '-screen 0 1024x768x24' aiot start --disableNSH",
-    "lint": "eslint --format codeframe --fix --ext .ux,.js src/"
+    "lint": "eslint --format codeframe --fix --ext .ux,.js src/",
+    "verify:release": "node scripts/verify-release.js"
   },
   "devDependencies": {
     "@aiot-toolkit/velasim": "^0.1.26",

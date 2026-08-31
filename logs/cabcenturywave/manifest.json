@@ -3,7 +3,7 @@
   "team_id": "contest2026_182_wumoqingyin",
   "github_login": "cabcenturywave",
   "generator": "opencode-collector@1.3.0",
-  "updated_at": "2026-08-14T19:04:48.963Z",
+  "updated_at": "2026-08-31T13:13:05.031Z",
   "sessions": [
     {
       "session_id": "ses_0432227b4ffe6iXQuCP01YgK18",
@@ -263,6 +263,32 @@
       "collection_mode": "cli",
       "health": "ok",
       "title": "CombatSense CDC-ECM contest evidence review",
+      "model": "xiaomi-token-plan/mimo-v2.5"
+    },
+    {
+      "session_id": "ses_fa8608125ffeoqJDFEki770dAq",
+      "tool": "opencode",
+      "started_at": "2026-08-31T11:41:05.626Z",
+      "last_event_at": "2026-08-31T11:55:49.387Z",
+      "event_count": 32,
+      "raw_message_count": 6,
+      "file_path": "logs/cabcenturywave/2026-08-31/opencode__ses_fa8608125ffeoqJDFEki770dAq.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "Explore repo structure (@explore subagent)",
+      "model": "xiaomi-token-plan/mimo-v2.5"
+    },
+    {
+      "session_id": "ses_fa860ab9cffe4xk7ahWAa5L1rc",
+      "tool": "opencode",
+      "started_at": "2026-08-31T11:40:54.755Z",
+      "last_event_at": "2026-08-31T13:13:05.031Z",
+      "event_count": 335,
+      "raw_message_count": 151,
+      "file_path": "logs/cabcenturywave/2026-08-31/opencode__ses_fa860ab9cffe4xk7ahWAa5L1rc.jsonl",
+      "collection_mode": "cli",
+      "health": "ok",
+      "title": "final-watch-quickapp-compliance",
       "model": "xiaomi-token-plan/mimo-v2.5"
     }
   ]
