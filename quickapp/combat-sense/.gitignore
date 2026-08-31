@@ -3,3 +3,11 @@
 /dist
 /.nyc_output
 /coverage
+/sign
+*.pem
+*.p12
+*.pfx
+*.key
+*.cert
+*.cer
+*.crt

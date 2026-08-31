@@ -1,8 +1,8 @@
-# CombatSense Edge — Beta 1.0
+# CombatSense Edge — 1.0.0
 
 ## 一、作品简介
 
-CombatSense Edge 是一款基于 openvela 可穿戴平台的拳击训练辅助快应用。通过手表端 IMU 传感器（或 Demo 模拟数据）实时检测出拳动作（Jab / Cross / Hook / Other），在训练中提供实时计数、倒计时和置信度反馈，训练后给出动作统计、左右手差异、疲劳趋势和教练建议。当前阶段为 Beta 1.0 应用骨架 + Demo 数据驱动，不接入真实硬件。
+CombatSense Edge 是一款基于 openvela 可穿戴平台的拳击训练辅助快应用。通过手表端 IMU 传感器（或 Demo 模拟数据）实时检测出拳动作（Jab / Cross / Hook / Other），在训练中提供实时计数、倒计时和置信度反馈，训练后给出动作统计、左右手差异、疲劳趋势和教练建议。当前阶段为 1.0.0 应用骨架 + Demo/Mock 数据驱动，不接入真实硬件。真实 IMU 训练分类仍 HOLD。
 
 ## 二、选题方向
 
@@ -100,7 +100,7 @@ contest2026_182_wumoqingyin.xml  # 已添加 linkfile 映射
 cd quickapp/combat-sense
 npm install
 npm run build
-# 输出: dist/com.openvela.combatsense.debug.1.0.0-beta.1.rpk
+# 输出: dist/com.openvela.combatsense.debug.1.0.0.rpk
 ```
 
 ### 模拟器运行

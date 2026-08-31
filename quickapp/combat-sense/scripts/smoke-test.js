@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * CombatSense Edge — Beta 1.0 Static Contract / Semantic Checks
+ * CombatSense Edge — 1.0.0 Static Contract / Semantic Checks
  *
  * Verifies data interface contract, demo data integrity, manifest structure,
  * page file existence, and session→review parameter flow.
@@ -66,6 +66,15 @@ assert(fileExists(path.join(SRC, 'app.ux')), 'app.ux exists');
 assert(fileExists(path.join(SRC, 'common', 'data-interface.js')), 'common/data-interface.js exists');
 assert(fileExists(path.join(SRC, 'common', 'demo-data.js')), 'common/demo-data.js exists');
 assert(fileExists(path.join(SRC, 'common', 'logo.png')), 'common/logo.png exists');
+
+// ---- 2b. Today page UI assertions ----
+console.log('\n[2b] Today page UI');
+var indexSrc = readFile(path.join(SRC, 'pages', 'index', 'index.ux'));
+assert(indexSrc.indexOf('Demo 数据模式') >= 0, 'Today contains Demo mode status text');
+assert(indexSrc.indexOf('dot-demo') >= 0, 'Today has dot-demo CSS class');
+assert(indexSrc.indexOf('设置') >= 0, 'Today uses "设置" text button (not glyph)');
+assert(indexSrc.indexOf('\u2699') < 0, 'Today does not contain gear character U+2699');
+assert(indexSrc.indexOf('settings-label') >= 0, 'Today has settings-label class');
 
 // ---- 3. Demo data integrity ----
 console.log('\n[3] Demo data integrity');
@@ -184,15 +193,15 @@ assert(pkg.devDependencies && pkg.devDependencies['aiot-toolkit'], 'aiot-toolkit
 // ---- 9. Version presence ----
 console.log('\n[9] Version presence');
 assert(manifest.versionName, 'manifest has versionName: ' + manifest.versionName);
-assert(manifest.versionName.indexOf('Beta') >= 0 || manifest.versionName.indexOf('beta') >= 0,
-  'manifest versionName contains Beta标识');
+assert(manifest.versionName === '1.0.0',
+  'manifest versionName is 1.0.0');
 assert(pkg.version, 'package.json has version: ' + pkg.version);
 
-// ---- 10. Beta 1.0 version consistency ----
-console.log('\n[10] Beta 1.0 version consistency');
+// ---- 10. Version consistency ----
+console.log('\n[10] Version consistency');
 var settingsSrc = readFile(path.join(SRC, 'pages', 'settings', 'index.ux'));
-assert(settingsSrc.indexOf('Beta 1.0') >= 0, 'settings footer shows Beta 1.0');
-assert(settingsSrc.indexOf('v1.0.0') < 0, 'settings footer does not show old v1.0.0');
+assert(settingsSrc.indexOf('1.0.0') >= 0, 'settings footer shows 1.0.0');
+assert(settingsSrc.indexOf('Beta 1.0') < 0, 'settings footer does not show old Beta 1.0');
 
 // ---- 11. LICENSE file ----
 console.log('\n[11] LICENSE file');

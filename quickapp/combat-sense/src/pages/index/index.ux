@@ -4,14 +4,14 @@
       <div class="header-row">
         <text class="title">CombatSense</text>
         <div class="settings-btn" onclick="goSettings">
-          <text class="settings-icon">⚙</text>
+          <text class="settings-label">设置</text>
         </div>
       </div>
       <text class="subtitle">Edge</text>
     </div>
 
     <div class="status-bar">
-      <div class="status-dot {{ deviceConnected ? 'dot-on' : 'dot-off' }}"></div>
+      <div class="status-dot {{ statusDotClass }}"></div>
       <text class="status-text">{{ deviceStatus }}</text>
     </div>
 
@@ -54,8 +54,9 @@ import dataInterface from '../../common/data-interface';
 
 export default {
   private: {
-    deviceConnected: true,
-    deviceStatus: '传感器就绪',
+    deviceConnected: false,
+    deviceStatus: '',
+    statusDotClass: 'dot-off',
     hasLastSession: true,
     lastDuration: '3.0',
     lastPunches: '117',
@@ -63,16 +64,27 @@ export default {
   },
   onReady() {
     var self = this;
-    dataInterface.probeSensor(
-      function () {
-        self.deviceConnected = true;
-        self.deviceStatus = '传感器就绪';
-      },
-      function () {
-        self.deviceConnected = false;
-        self.deviceStatus = '传感器不可用 — 使用 Demo 数据';
-      }
-    );
+    var settings = dataInterface.getSettings();
+    var isDemo = settings.demoMode;
+
+    if (isDemo) {
+      self.deviceConnected = true;
+      self.deviceStatus = 'Demo 数据模式（模拟器）';
+      self.statusDotClass = 'dot-demo';
+    } else {
+      dataInterface.probeSensor(
+        function () {
+          self.deviceConnected = true;
+          self.deviceStatus = '传感器就绪';
+          self.statusDotClass = 'dot-on';
+        },
+        function () {
+          self.deviceConnected = false;
+          self.deviceStatus = '传感器不可用';
+          self.statusDotClass = 'dot-off';
+        }
+      );
+    }
 
     var session = dataInterface.getSessionSummary();
     if (session) {
@@ -111,7 +123,7 @@ export default {
 .header {
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 .header-row {
   flex-direction: row;
@@ -119,15 +131,17 @@ export default {
   justify-content: center;
 }
 .settings-btn {
-  margin-left: 20px;
-  padding: 8px;
+  margin-left: 16px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background-color: #222222;
 }
-.settings-icon {
-  font-size: 28px;
-  color: #888888;
+.settings-label {
+  font-size: 20px;
+  color: #cccccc;
 }
 .title {
-  font-size: 40px;
+  font-size: 38px;
   color: #ffffff;
   font-weight: bold;
   letter-spacing: 2px;
@@ -141,7 +155,7 @@ export default {
 .status-bar {
   flex-direction: row;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .status-dot {
   width: 12px;
@@ -155,6 +169,9 @@ export default {
 .dot-off {
   background-color: #ff4444;
 }
+.dot-demo {
+  background-color: #f59e0b;
+}
 .status-text {
   font-size: 20px;
   color: #999999;
@@ -165,7 +182,7 @@ export default {
   background-color: #1a1a1a;
   border-radius: 16px;
   padding: 16px 24px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   width: 360px;
 }
 .card-label {
@@ -203,7 +220,7 @@ export default {
   background-color: #ff4444;
   justify-content: center;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 .start-text {
   font-size: 28px;
@@ -211,7 +228,7 @@ export default {
   font-weight: bold;
 }
 .nav-hint {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 .hint-text {
   font-size: 18px;
